@@ -111,21 +111,25 @@ chkconfig --del test
 BACKUPFILE=backup-$(date +%m-%d-%Y)
 archive=${1:-$BACKUPFILE}
 tar cvf - `find . -mtime -10 -type f -print` > $archive.tar
-#+ -mtime -10表示那些最近10*24小时内被修改的文件,
-#+ -type f表示一般的文件,
-#+ -print 在标准输出中打印完整的文件名
+  # -mtime -10表示那些最近10*24小时内被修改的文件
+  # -type f表示一般的文件
+  # -print 在标准输出中打印完整的文件名
+  
 gzip $archive.tar
 echo "Directory $PWD backed up in archive file \"$archive.tar.gz\"."
-#上边代码,#+ 如果在发现太多的文件的时候,或者是如果文件
-#名包括空格的时候,将执行失败.
-#=====================建议使用下面的方法======================
-#  find . -mtime -1 -type f -print0 | xargs -0 tar rvf "$archive.tar"
-#-print0 在标准输出中打印完整的文件名,随后跟一个null字符,
-#对应了xargs命令中的‘-0’选项.
-#使用gnu版本的find.
-#find . -mtime -1 -type f -exec tar rvf "$archive.tar" '{}' \;
-#对于其他风格的UNIX便于移植,但是比较慢.
 exit 0
+
+# 上边代码,如果在发现太多的文件的时候,或者是如果文件
+# 名包括空格的时候,将执行失败.
+
+#=====================建议使用下面的方法======================
+
+#  find . -mtime -1 -type f -print0 | xargs -0 tar rvf "$archive.tar"
+#  -print0  在标准输出中打印完整的文件名,随后跟一个null字符,
+#  对应了xargs命令中的‘-0’选项.
+#  使用gnu版本的find.
+#  find . -mtime -1 -type f -exec tar rvf "$archive.tar" '{}' \;
+#  对于其他风格的UNIX便于移植,但是比较慢.
 ```
 
 ### 13.查询文件行数
