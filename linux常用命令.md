@@ -172,7 +172,13 @@ cat url-list.txt | xargs wget -c
 ### 16.Linux常用监控工具
 ```shell
 top： 看5分 10分 15分的负载情况。
- 
+  top - 当前时间 系统上线时间 当前登录用户数 系统负载（任务队列平均长度）
+  tasks： 进程总数 正在运行进程数 休眠进程数 停止进程数 僵尸进程数
+  %cpu： 用户空间占比 内核空间占比 改变过优先级的进程占比 空闲CPU占比 IO等待占比 硬中断占比 软中断占比
+  KiB： mem 物理内存总量 空闲内存总量 已使用物理内存总量 内核缓存内存量
+  Kib swap： 交换区总量 空闲交换区总量 使用的交换区总量
+  PID(进程ID) USER(用户) PR(优先级) NI(Nice值) VIRT(虚拟内存) RES(常驻内存) SHR-S(共享内存) %CPI %MEM TIME+ COMMAND
+  
 htop：一个交互进程浏览器，完全替代top。但是需要额外安装。。。。。
 
 iostat：iostat -d -k 2 只显示磁盘信息，每2秒一次刷新频率
