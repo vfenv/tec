@@ -166,10 +166,10 @@ xargs ：
 cat test.txt | xargs 多行输入单行输出	
 cat test.txt | xargs  -n3 多行输入单行 3 个元素输出
 ls *.jpg | xargs –n1 –I {} cp {} /data/images 把当前路径下所有图片文件复制到/data/images下
-find .  -type  f  -name  “*.log”  -print0 |xargs  -0  rm  -f     -0是界定符
+find .  -type  f  -name  "*.log"  -print0 |xargs  -0  rm  -f     -0是界定符
 统计一个源代码目录中所有php文件行数
-find .  –type f  -name “*.php” –print0 | xargs  -0  wc  -l
-find . –type f –name “*.jpg” –print | xargs tar –czvf images.tar.gz
+find .  –type f  -name "*.php" –print0 | xargs  -0  wc  -l
+find . –type f –name "*.jpg" –print | xargs tar –czvf images.tar.gz
 cat url-list.txt | xargs wget -c
 ```
 
