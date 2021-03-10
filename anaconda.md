@@ -12,11 +12,13 @@ conda create –n python36 python=3.6
 
 ### 安装完成后通过命令进入到不同的环境中
 source activate python36
+
 conda activate base
 
 
 ### 退出环境
 source deactivate python36
+
 conda deactivate
 
 ### 编辑conda环境变量
@@ -37,8 +39,11 @@ conda update conda，conda --version，conda -h
 
 
 ### 对虚拟环境中安装额外的包
+
 conda install -n aaaaa [package]
+
 如果已经在环境里 使用下面命令直接安装三方包
+
 conda install 包名  
 
 
