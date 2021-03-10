@@ -94,12 +94,12 @@ vi /etc/init.d/test
 
 chmod +x /etc/init.d/test
 
-chkconfig - -add test
-chkconfig - -list test 
+chkconfig --add test
+chkconfig --list test 
 关闭
 chkconfig test off
 删除
-chkconfig - -del test
+chkconfig --del test
 ```
 
 ### 12.查询最近10天修改过的文件
