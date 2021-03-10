@@ -6,7 +6,7 @@ java -jar a.jar &>xxx.log &
 ```
 ### 2.查找文件
 ```shell
-find / -name “ab”
+find / -name "ab"
 locate ab
 whereis ab 二进制查找
 which ab path中查找文件
@@ -153,7 +153,7 @@ awk  '$1>2' log.txt  打印第一列大于2的行
 awk  '$2  ~  /th/  {print $2,$4}'  log.txt 正则匹配 第二个分割包含th字符串 ~是模式开始 //中间是要匹配的内容
 awk  '/re/'  log.txt 输出包含re的行
 awk  'BEGIN{IGNORECASE=1}  /re/'  log.txt 忽略大小写 包含re的行
-```
+
 xargs ：
 cat test.txt | xargs 多行输入单行输出	
 cat test.txt | xargs  -n3 多行输入单行 3 个元素输出
@@ -163,6 +163,7 @@ find .  -type  f  -name  “*.log”  -print0 |xargs  -0  rm  -f     -0是界定
 find .  –type f  -name “*.php” –print0 | xargs  -0  wc  -l
 find . –type f –name “*.jpg” –print | xargs tar –czvf images.tar.gz
 cat url-list.txt | xargs wget -c
+```
 
 ### 16.Linux常用监控工具
 ```shell
