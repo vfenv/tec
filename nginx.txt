@@ -1,0 +1,347 @@
+启动
+nginx -c conf/nginx.conf
+========================================
+测试配置文件是否正确
+nginx -t 
+========================================
+重启
+nginx -s reload
+========================================
+在http下添加 upstream upstream_name {} 来配置要映射的服务器。
+其中的upstream_name大家可以指定为服务的域名或者项目的代号。
+server下的location 我们将 / 下的全部请求转发到 http://upstream_name ，也就是我们上面配置的服务器列表中的某一台服务器上。具体是哪台服务器，nginx会根据配置的调度算法来确认。
+
+http {
+    upstream upstream_name{
+        server 192.168.0.28:8001;
+        server 192.168.0.28:8002;
+    }
+
+    server {
+        listen       8080;
+        server_name  localhost;
+
+        location / {
+            proxy_pass http://upstream_name;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+    }
+}
+========================================
+nginx负载均衡策略
+nginx的负载均衡策略有4种：
+
+1.轮询(默认)
+最基本的配置方法，它是upstream的默认策略，每个请求会按时间顺序逐一分配到不同的后端服务器。
+参数			描述
+fail_timeout	与max_fails结合使用
+max_fails		设置在fail_timeout参数设置的时间内最大失败次数，如果在这个时间内，所有针对该服务器的请求都失败了，那么认为该服务器会被认为是停机了
+fail_time		服务器会被认为停机的时间长度,默认为10s。
+backup			标记该服务器为备用服务器。当主服务器停止时，请求会被发送到它这里。
+down			标记服务器永久停机了。
+
+在轮询中，如果服务器down掉了，会自动剔除该服务器。
+缺省配置就是轮询策略。
+此策略适合服务器配置相当，无状态且短平快的服务使用。
+
+2.权重
+
+在轮询策略的基础上制定沦陷的几率。例如
+
+upstream foo {
+    server localhost:8001 weight=2;
+    server localhost:8002;
+    server localhost:8003 backup;
+    server localhost:8004 max_fails=3 fail_timeout=20s;
+}
+权重越高分配到需要处理的请求越多。
+此策略可以与least_conn和ip_hash结合使用。
+此策略比较适合服务器的硬件配置差别比较大的情况。
+
+3.ip_hash
+
+负载均衡器按照客户端IP地址的分配方式，可以确保相同客户端的请求一直发送到相同的服务器。这样每个访客都固定访问一个后端服务器。
+
+upstream foo {
+    ip_hash;
+    server localhost:8001 weight=2;
+    server localhost:8002;
+    server localhost:8003;
+    server localhost:8004 max_fails=3 fail_timeout=20s;
+}
+注意：
+
+在nginx版本1.3.1之前，不能在ip_hash中使用权重（weight）。
+ip_hash不能与backup同时使用。
+此策略适合有状态服务，比如session。
+当有服务器需要剔除，必须手动down掉。
+
+
+4.least_conn 最小连接
+
+把请求转发给连接数较少的后端服务器。轮询算法是把请求平均的转发给各个后端，使它们的负载大致相同；
+但是，有些请求占用的时间很长，会导致其所在的后端负载较高。这种情况下，least_conn这种方式就可以达到更好的负载均衡效果
+
+upstream foo {
+    least_conn;
+    server localhost:8001 weight=2;
+    server localhost:8002;
+    server localhost:8003 backup;
+    server localhost:8004 max_fails=3 fail_timeout=20s;
+}
+注意：
+
+此负载均衡策略适合请求处理时间长短不一造成服务器过载的情况。
+
+除了上面这些调度策略之后，还有一些第三方的调度策略可以集成到nginx中。
+在实际运用中，需要根据不同的场景选择不同的策略，大多是多种策略结合使用以达到实际需求的性能。
+========================================
+导入外部配置文件
+#导入外部服务器配置文件存放地址
+include /usr/local/nginx/conf/vhosts/*.conf;
+
+#集群的服务器
+upstream local_tomcat{
+	server localhost:8080;
+	server localhost:8081;
+}
+server {
+	listen 80;
+	
+	server_name www.tomcat1.com;
+
+	location ~ /upload/.*$ {
+		root /www/resources/;
+		expires 30d;
+	}
+	location / {
+		
+		#指定集群的服务器
+		proxy_pass http://local_tomcat;
+
+		#配置集群服务器故障转移
+		#nginx与上游服务器(真实访问的服务器)超时时间 后端服务器连接的超时时间_发起握手等候响应超时时间
+		proxy_connect_timeout 1s;
+		#nginx发送给上游服务器(真实访问的服务器)超时时间
+		proxy_send_timeout 1s;
+		#nginx接受上游服务器(真实访问的服务器)超时时间
+		proxy_read_timeout 1s;
+
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header REMOTE-HOST $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+	}
+}
+========================================
+proxy_pass http://10.115.252.230:8080/;
+二级路径 如果带/  就是实际请求把二级路径去掉，不带/就是拼接，带上二级路径
+
+upstream pythonweb{
+	server 10.115.252.230:8704;
+	server 10.115.252.230:8705;
+	server 10.115.252.230:8706;
+	server 10.115.252.230:8707;
+}
+server {
+    listen       80;
+    server_name  dataservice.inhuawei.com;
+
+    location /pweb/ {
+        proxy_pass http://pythonweb/;
+    }
+}
+
+========================================
+优化：
+
+  ...              #全局块
+
+events {         #events块，工作模式及并发量设置
+   ...
+}
+
+http      #http块，主要是设定和一次HTTP请求处理有关的配置
+{
+    ...   #http全局块
+    server        #server块，设定虚拟主机配置
+    { 
+        ...       #server全局块
+        location [PATTERN]   #location块
+        {
+            ...
+        }
+        location [PATTERN] 
+        {
+            ...
+        }
+    }
+    server
+    {
+      ...
+    }
+    ...     #http全局块
+}
+
+
+上面的模块结构说明：
+　　1、全局块：配置影响nginx全局的指令。一般有运行nginx服务器的用户组，nginx进程pid存放路径，日志存放路径，配置文件引入，允许生成worker_process数等。
+　　2、events块：配置影响nginx服务器与用户的网络连接处理。具体有每个进程的最大连接数，选取哪种事件驱动模型处理连接请求，是否允许同时接受多个网路连接，开启多个网络连接序列化等。
+　　3、http块：主要是设定和一次HTTP请求处理有关的配置，可以嵌套多个server，配置代理，缓存，日志定义等绝大多数功能和第三方模块的配置。如文件引入，mime-type定义，日志自定义，是否使用sendfile传输文件，连接超时时间，单连接请求数等。
+　　4、server块：配置虚拟主机的相关参数，一个http中可以有多个server。
+　　5、location块：配置请求的路由，以及各种页面的处理情况。
+　　以上就是这几个模块的作用所在，层次感还是很清楚的。
+
+#user  nobody; #运行用户，可以不进行设置
+worker_processes  2;  #启动进程数量,通常设置成和cpu的数量相等
+
+cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c
+
+
+#全局错误日志，这个设置可以放入全局块，http块，server块，级别依次为：debug|info|notice|warn|error|crit|alert|emerg
+error_log  logs/error.log;
+error_log  logs/error.log  notice;
+error_log  logs/error.log  info;
+
+#指定nginx进程运行文件存放位置
+pid        logs/nginx.pid;
+
+#工作模式及并发量设置
+events {
+    #epoll是多路复用IO(I/O Multiplexing)中的一种方式,仅用于linux2.6以上内核,可以大大提高nginx的性能
+    use epoll; 
+    #设置网路连接序列化，防止惊群现象发生，默认为on
+    accept_mutex on;  
+    #设置一个进程是否同时接受多个网络连接，默认为off
+    multi_accept on;  
+    #单个后台worker process进程的最大并发连接数。并发总数为worker_processes 和 worker_connections 的乘积，
+    #设置了反向代理的情况下，并发总数会有所变化。
+    worker_connections  1024;
+}
+
+#http请求处理块。主要是设定和一次HTTP请求处理有关的配置
+http {
+    #文件扩展名与文件类型映射表，设定mime类型,类型由mime.type文件定义
+    include       mime.types;
+    #默认文件类型，默认为text/plain
+    default_type  application/octet-stream;
+
+    #设定日志格式
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  logs/access.log  main;
+
+    #sendfile 指令指定 nginx 是否调用 sendfile 函数（zero copy 方式）来输出文件，
+    #对于普通应用，必须设为 on,
+    #如果用来进行下载等应用磁盘IO重负载应用，可设置为 off，
+    #以平衡磁盘与网络I/O处理速度，降低系统的uptime.
+    sendfile        on;
+    #tcp_nopush     on;
+
+    #连接超时时间，默认为75s，可以在http，server，location块。
+    keepalive_timeout  65;
+    #开启gzip压缩
+    gzip  on;
+
+   #设定虚拟主机配置，一个HTTP模块可以设置多个虚拟主机
+    server {
+        #监听的端口
+        listen       80;
+	#监听地址
+        server_name  localhost;
+
+        #charset koi8-r;
+        
+	#设定本虚拟主机的访问日志
+        access_log  logs/host.access.log  main;
+	#默认请求
+        location / {
+	    #网站根目录位置
+            root   /home/html;
+	    #定义首页索引文件的名称
+            index  index.html index.htm;
+        }
+        # 定义错误提示页面
+        error_page  404              /404.html;
+        # redirect server error pages to the static page /50x.html
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+
+        # proxy the PHP scripts to Apache listening on 127.0.0.1:80
+        #
+        #location ~ \.php$ {
+        #    proxy_pass   http://127.0.0.1;
+        #}
+
+        # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+        #
+        #location ~ \.php$ {
+        #    root           html;
+        #    fastcgi_pass   127.0.0.1:9000;
+        #    fastcgi_index  index.php;
+        #    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;
+        #    include        fastcgi_params;
+        #}
+
+        # deny access to .htaccess files, if Apache's document root
+        # concurs with nginx's one
+        #
+        #禁止访问 .htxxx 文件
+	location ~ /\.ht {
+            deny  all;
+        }
+    }
+
+
+    # another virtual host using mix of IP-, name-, and port-based configuration
+    #
+    #server {
+    #    listen       8000;
+    #    listen       somename:8080;
+    #    server_name  somename  alias  another.alias;
+
+    #    location / {
+    #        root   html;
+    #        index  index.html index.htm;
+    #    }
+    #}
+
+}
+
+    # HTTPS 配置，主要是设定和一次HTTPS请求处理有关的配置主要多了个SSL，其他的和HTTP差不多
+    # HTTPS server
+    #
+    #server {
+    #    listen       443 ssl;
+    #    server_name  localhost;
+
+    #    ssl_certificate      cert.pem;
+    #    ssl_certificate_key  cert.key;
+
+    #    ssl_session_cache    shared:SSL:1m;
+    #    ssl_session_timeout  5m;
+
+    #    ssl_ciphers  HIGH:!aNULL:!MD5;
+    #    ssl_prefer_server_ciphers  on;
+
+    #    location / {
+    #        root   html;
+    #        index  index.html index.htm;
+    #    }
+    #}
+	
+========================================
+在nginx 的配置文件 在 http,server,location 三个位置任意一个位置
+加上
+
+proxy_read_timeout 240s; 
+
+========================================
+
+	
