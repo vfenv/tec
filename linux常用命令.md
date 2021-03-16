@@ -260,5 +260,9 @@ set                 定义变量
 puts                输出变量
 set timeout         设置超时时间
 
+crontab -e
+*/5 * * * * sh /mysqlback/mysqlbackup.sh > /dev/null 2>&1 &
+cron start
+#chkconfig --add cron
 ```
 
