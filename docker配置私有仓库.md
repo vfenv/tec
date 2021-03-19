@@ -76,7 +76,7 @@ pom中配置
         <serverId>myproject-harbor</serverId>
         <registryUrl>http://${docker.repostory}</registryUrl>
         <!--必须配置dockerHost标签（除非配置系统环境变量DOCKER_HOST）-->
-        <dockerHost>http://10.115.251.29:2375</dockerHost>
+        <dockerHost>http://192.168.1.103:2375</dockerHost>
         <!--Building image 192.168.10.11/demo1-->
         <imageName>${docker.repostory}/${docker.registry.name}/${project.artifactId}:${project.version}</imageName>
         <!-- 指定 Dockerfile 路径-->
@@ -100,7 +100,7 @@ pom中配置
 
 ```shell
 #启动容器
-docker run -d --name="mycoco" --net=host -v /automl_log:/automl_log -v /data/nfsrepo:/data/nfsrepo -e "EUREKA_INSTANCE_IP-ADDRESS=10.115.251.29" -e "SPRING_PROFILES_ACTIVE=test" 192.168.1.101:80/myproject/service-test:1.0;
+docker run -d --name="mycoco" --net=host -v /automl_log:/automl_log -v /data/nfsrepo:/data/nfsrepo -e "EUREKA_INSTANCE_IP-ADDRESS=192.168.1.103" -e "SPRING_PROFILES_ACTIVE=test" 192.168.1.101:80/myproject/service-test:1.0;
 
 ```
 
