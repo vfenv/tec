@@ -235,7 +235,7 @@ iftop 命令常用的参数如下，这里做个小规模总结：
 
 #!/bin/bash
 #!/usr/bin/expect
-mysqldump -uamc -pamc123456 --all-databases |gzip >/backup/backup`date +%Y%m%d`.gz
+mysqldump -uroot -p123456 --all-databases |gzip >/backup/backup`date +%Y%m%d`.gz
 expect -c "
     spawn scp -r /backup/backup`date +%Y%m%d`.gz root@192.168.1.101:/buckup/mysqlback/
     expect {
@@ -264,5 +264,19 @@ crontab -e
 */5 * * * * sh /mysqlback/mysqlbackup.sh > /dev/null 2>&1 &
 cron start
 #chkconfig --add cron
+```
+
+### 18.查看某个文件夹下文件数量
+
+```shell
+find -type f | wc -l
+```
+
+### 19.查看某个文件夹下文件夹数量
+
+```shell
+find -type d | wc -l
+#不计算隐藏文件夹数量
+find . -type d ! -name ".*" | wc -l
 ```
 
