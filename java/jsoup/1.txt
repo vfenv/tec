@@ -1,0 +1,224 @@
+263--Panasonic RP-HC200--headphones/panasonic/rp-hc200
+257--Panasonic RP-HC800--headphones/panasonic/rp-hc800
+316--Panasonic RP-HJE120--headphones/panasonic/rp-hje120
+242--Parrot Zik 2.0--headphones/parrot/zik-2-0
+276--Parrot Zik 3.0--headphones/parrot/zik-3-0
+16488--Philips Fidelio X3--headphones/philips/fidelio-x3
+16250--Philips SHP9600--headphones/philips/shp9600
+2056--Philips Fidelio X2HR--headphones/philips/fidelio-x2hr
+251--Philips Fidelio NC1--headphones/philips/fidelio-nc1
+371--Philips SHP9500--headphones/philips/shp9500
+312--Plane Quiet Platinum--headphones/plane-quiet/platinum
+8410--Plantronics Voyager 3200--headphones/plantronics/voyager-3200
+241--Plantronics Backbeat Pro--headphones/plantronics/backbeat-pro
+415--Plantronics BackBeat Pro 2--headphones/plantronics/backbeat-pro-2
+592--Plantronics RIG 800LX--headphones/plantronics/rig-800lx
+620--Plantronics BackBeat Go 600--headphones/plantronics/backbeat-go-600
+762--Plantronics Backbeat Go 810--headphones/plantronics/backbeat-go-810
+642--Plantronics BackBeat Fit--headphones/plantronics/backbeat-fit
+1595--Plantronics Voyager Legend--headphones/plantronics/voyager-legend
+1596--Plantronics Voyager 5200--headphones/plantronics/voyager-5200
+479--Polk Audio Buckle--headphones/polk-audio/buckle
+256--Polk Audio UltraFocus 8000--headphones/polk-audio/ultrafocus-8000
+18125--Puro JuniorJams--headphones/puro/juniorjams
+776--RHA TrueConnect--headphones/rha/trueconnect
+1724--RUNMUS RGB K1 Gaming Headset--headphones/runmus/rgb-k1-gaming-headset
+1665--Raycon E25--headphones/raycon/e25
+924--Raycon E50--headphones/raycon/e50
+1623--Raycon E55--headphones/raycon/e55
+1593--Raycon E100--headphones/raycon/e100
+19944--Razer Kaira Pro--headphones/razer/kaira-pro
+18403--Razer BlackShark V2 Pro--headphones/razer/blackshark-v2-pro
+16542--Razer BlackShark V2 X--headphones/razer/blackshark-v2-x
+16489--Razer BlackShark V2--headphones/razer/blackshark-v2
+12963--Razer Opus--headphones/razer/opus
+9820--Razer Kraken Ultimate--headphones/razer/kraken-ultimate
+4837--Razer Hammerhead USB-C--headphones/razer/hammerhead-usb-c
+497--Razer Kraken USB--headphones/razer/kraken-usb
+499--Razer Kraken Pro V2--headphones/razer/kraken-pro-v2
+796--Razer Kraken Tournament Edition--headphones/razer/kraken-tournament-edition
+506--Razer Man O' War--headphones/razer/man-o-war
+767--Razer Nari Ultimate--headphones/razer/nari-ultimate
+889--Razer Kraken X--headphones/razer/kraken-x
+1666--Razer Hammerhead True Wireless--headphones/razer/hammerhead-true-wireless
+350--Rovking V1--headphones/rovking/v1
+593--SENSO ActivBuds S-250--headphones/senso/activbuds-s-250
+264--SMS Audio STREET by 50 Active Noise Cancelling--headphones/sms-audio/street-by-50-active-noise-cancelling
+910--Sabbat E12--headphones/sabbat/e12
+16037--Samsung Galaxy Buds Live--headphones/samsung/galaxy-buds-live
+14780--Samsung AKG Type-C--headphones/samsung/akg-type-c
+244--Samsung Level On Wireless--headphones/samsung/level-on-wireless
+265--Samsung Level Over Wireless--headphones/samsung/level-over-wireless
+372--Samsung Level U Pro--headphones/samsung/level-u-pro
+567--Samsung Gear IconX--headphones/samsung/gear-iconx
+792--Samsung Galaxy Buds--headphones/samsung/galaxy-buds
+1791--Samsung Galaxy Buds Plus--headphones/samsung/galaxy-buds-plus
+571--Samsung U Flex--headphones/samsung/u-flex
+18987--Sennheiser HD 6XX--headphones/sennheiser/hd-6xx
+18492--Sennheiser HD 560S--headphones/sennheiser/hd-560s
+17587--Sennheiser CX 400BT--headphones/sennheiser/cx-400bt
+11955--Sennheiser HD 450BT--headphones/sennheiser/hd-450bt
+10667--Sennheiser MOMENTUM True Wireless 2--headphones/sennheiser/momentum-true-wireless-2
+9581--Sennheiser SC 160 USB-C Headset--headphones/sennheiser/sc-160-usb-c-headset
+248--Sennheiser CXC-700--headphones/sennheiser/cxc-700
+500--Sennheiser Game One--headphones/sennheiser/game-one
+534--Sennheiser HD1 In-Ear Wireless--headphones/sennheiser/hd1-in-ear-wireless
+476--Sennheiser HD 4.50--headphones/sennheiser/hd-4-50
+298--Sennheiser HD 201--headphones/sennheiser/hd-201
+308--Sennheiser HD 202 II--headphones/sennheiser/hd-202-ii
+299--Sennheiser HD 280 Pro--headphones/sennheiser/hd-280-pro
+375--Sennheiser HD 518--headphones/sennheiser/hd-518
+246--Sennheiser HD 598--headphones/sennheiser/hd-598
+409--Sennheiser HD 598 Cs--headphones/sennheiser/hd-598-cs
+408--Sennheiser HD 599--headphones/sennheiser/hd-599
+325--Sennheiser HD 600--headphones/sennheiser/hd-600
+245--Sennheiser HD 650--headphones/sennheiser/hd-650
+816--Sennheiser HD 660 S--headphones/sennheiser/hd-660-s
+481--Sennheiser HD 700--headphones/sennheiser/hd-700
+290--Sennheiser HD 800 S--headphones/sennheiser/hd-800-s
+277--Sennheiser Momentum 2.0--headphones/sennheiser/momentum-2-0
+279--Sennheiser Momentum 2.0 Wireless--headphones/sennheiser/momentum-2-0-wireless
+278--Sennheiser Momentum 2.0 On-Ear--headphones/sennheiser/momentum-2-0-on-ear
+391--Sennheiser Momentum In-Ear--headphones/sennheiser/momentum-in-ear
+268--Sennheiser MM 450-X--headphones/sennheiser/mm-450-x
+266--Sennheiser MM 550-X--headphones/sennheiser/mm-550-x
+282--Sennheiser PXC 250 II--headphones/sennheiser/pxc-250-ii
+253--Sennheiser PXC 450--headphones/sennheiser/pxc-450
+392--Sennheiser PXC 550 Wireless--headphones/sennheiser/pxc-550-wireless
+1659--Sennheiser PXC 550-II Wireless--headphones/sennheiser/pxc-550-ii-wireless
+446--Sennheiser RS 165--headphones/sennheiser/rs-165
+448--Sennheiser RS 175--headphones/sennheiser/rs-175
+452--Sennheiser RS 185--headphones/sennheiser/rs-185
+453--Sennheiser RS 195--headphones/sennheiser/rs-195
+618--Sennheiser AMBEO Smart Headset--headphones/sennheiser/ambeo-smart-headset
+669--Sennheiser HD 820--headphones/sennheiser/hd-820
+728--Sennheiser Momentum True Wireless--headphones/sennheiser/momentum-true-wireless
+770--Sennheiser HD 4.40--headphones/sennheiser/hd-4-40
+823--Sennheiser IE 40 PRO--headphones/sennheiser/ie-40-pro
+891--Sennheiser HD 58X Jubilee--headphones/sennheiser/hd-58x-jubilee
+1585--Sennheiser Momentum 3 Wireless--headphones/sennheiser/momentum-3-wireless
+12049--Shure AONIC 50--headphones/shure/aonic-50
+454--Shure SE315--headphones/shure/se315
+455--Shure SE425--headphones/shure/se425
+457--Shure SRH240A--headphones/shure/srh240a
+456--Shure SRH440--headphones/shure/srh440
+635--Shure SE215--headphones/shure/se215
+18038--Skullcandy Jib True--headphones/skullcandy/jib-true
+18005--Skullcandy Sesh Evo--headphones/skullcandy/sesh-evo
+17708--Skullcandy Crusher Evo--headphones/skullcandy/crusher-evo
+15459--Skullcandy Indy Evo--headphones/skullcandy/indy-evo
+14218--Skullcandy Push Ultra--headphones/skullcandy/push-ultra
+12001--Skullcandy Indy Fuel--headphones/skullcandy/indy-fuel
+389--Skullcandy Crusher--headphones/skullcandy/crusher
+477--Skullcandy Grind--headphones/skullcandy/grind
+328--Skullcandy Hesh 2--headphones/skullcandy/hesh-2
+568--Skullcandy Hesh 3--headphones/skullcandy/hesh-3
+645--Skullcandy Jib--headphones/skullcandy/jib
+663--Skullcandy Crusher Wireless--headphones/skullcandy/crusher-wireless
+790--Skullcandy Crusher 360--headphones/skullcandy/crusher-360
+708--Skullcandy Venue--headphones/skullcandy/venue
+729--Skullcandy Push--headphones/skullcandy/push
+860--Skullcandy Indy--headphones/skullcandy/indy
+1622--Skullcandy Sesh--headphones/skullcandy/sesh
+19667--Sony PULSE 3D--headphones/sony/pulse-3d
+16490--Sony WH-1000XM4--headphones/sony/wh-1000xm4
+13563--Sony WF-SP800N--headphones/sony/wf-sp800n
+12432--Sony WH-CH710N--headphones/sony/wh-ch710n
+12431--Sony WF-XB700--headphones/sony/wf-xb700
+8123--Sony WH-H910N--headphones/sony/wh-h910n
+430--Sony MDR-1A--headphones/sony/mdr-1a
+346--Sony MDR-100AAP--headphones/sony/mdr-100aap
+412--Sony MDR-1000X--headphones/sony/mdr-1000x
+386--Sony MDR-7506--headphones/sony/mdr-7506
+252--Sony MDR-NC8--headphones/sony/mdr-nc8
+470--Sony MDR-XB50AP--headphones/sony/mdr-xb50ap
+437--Sony MDR-XB950B1--headphones/sony/mdr-xb950b1
+588--Sony MDR-XB950N1--headphones/sony/mdr-xb950n1
+300--Sony MDR-ZX110NC--headphones/sony/mdr-zx110nc
+262--Sony MDR-ZX550BN--headphones/sony/mdr-zx550bn
+269--Sony MDR-ZX770BN--headphones/sony/mdr-zx770bn
+531--Sony WH-1000XM2--headphones/sony/wh-1000xm2
+562--Sony WF-1000X--headphones/sony/wf-1000x
+587--Sony WI-C400--headphones/sony/wi-c400
+617--Sony WH-H900N--headphones/sony/wh-h900n
+644--Sony WI-C300--headphones/sony/wi-c300
+650--Sony WH-CH700N--headphones/sony/wh-ch700n
+659--Sony WF-SP700N--headphones/sony/wf-sp700n
+677--Sony WI-SP500--headphones/sony/wi-sp500
+678--Sony WH-1000XM3--headphones/sony/wh-1000xm3
+679--Sony MDR-7520--headphones/sony/mdr-7520
+680--Sony WI-SP600N--headphones/sony/wi-sp600n
+711--Sony WI-1000X--headphones/sony/wi-1000x
+1800--Sony WI-1000XM2--headphones/sony/wi-1000xm2
+713--Sony WH-CH500--headphones/sony/wh-ch500
+1709--Sony WH-CH510--headphones/sony/wh-ch510
+824--Sony WH-CH400--headphones/sony/wh-ch400
+829--Sony WI-C600N--headphones/sony/wi-c600n
+835--Sony WH-XB700--headphones/sony/wh-xb700
+886--Sony WH-XB900N--headphones/sony/wh-xb900n
+900--Sony WI-C310--headphones/sony/wi-c310
+902--Sony WI-C200--headphones/sony/wi-c200
+917--Sony WF-1000XM3--headphones/sony/wf-1000xm3
+1708--Sony WI-XB400--headphones/sony/wi-xb400
+465--Sound Intone CX-05--headphones/sound-intone/cx-05
+19338--SoundPeats TrueFree 2--headphones/soundpeats/truefree-2
+286--SoundPeats Q8--headphones/soundpeats/q8
+373--SoundPeats Q9A--headphones/soundpeats/q9a
+735--SoundPeats TrueFree--headphones/soundpeats/truefree
+301--SoundPeats QY8--headphones/soundpeats/qy8
+351--SoundPeats QY9--headphones/soundpeats/qy9
+7602--Status Audio BT One--headphones/status-audio/bt-one
+747--Stax SR-L300--headphones/stax/sr-l300
+18946--SteelSeries Arctis 7P--headphones/steelseries/arctis-7p
+18040--SteelSeries Arctis 9--headphones/steelseries/arctis-9
+5455--SteelSeries Arctis 1 Wireless--headphones/steelseries/arctis-1-wireless
+498--SteelSeries Arctis 7--headphones/steelseries/arctis-7
+508--SteelSeries Siberia 200--headphones/steelseries/siberia-200
+616--SteelSeries Arctis Pro GameDAC--headphones/steelseries/arctis-pro-gamedac
+751--SteelSeries Arctis Pro Wireless--headphones/steelseries/arctis-pro-wireless
+771--SteelSeries Arctis 7 2019 Edition--headphones/steelseries/arctis-7-2019-edition
+815--SteelSeries Arctis 5 2019 Edition--headphones/steelseries/arctis-5-2019-edition
+831--SteelSeries Arctis 3 2019 Edition--headphones/steelseries/arctis-3-2019-edition
+832--SteelSeries Arctis 9X--headphones/steelseries/arctis-9x
+890--SteelSeries Arctis 1--headphones/steelseries/arctis-1
+471--Superlux HD 681--headphones/superlux/hd-681
+523--Superlux HD 681 EVO--headphones/superlux/hd-681-evo
+439--Superlux HD 668B--headphones/superlux/hd-668b
+355--Swimbuds Swimbuds--headphones/swimbuds/swimbuds
+461--Symphonized NRG 3.0--headphones/symphonized/nrg-3-0
+720--TIN Audio T2--headphones/tin-audio/t2
+789--TIN Audio T3--headphones/tin-audio/t3
+15138--TOZO T12--headphones/tozo/t12
+1723--TOZO T10--headphones/tozo/t10
+1786--TOZO T6--headphones/tozo/t6
+5807--TREBLAB Z2--headphones/treblab/z2
+754--TREBLAB X5--headphones/treblab/x5
+18992--TaoTronics SoundLiberty 95--headphones/taotronics/soundliberty-95
+15875--TaoTronics SoundLiberty 92--headphones/taotronics/soundliberty-92
+8921--TaoTronics SoundLiberty 79--headphones/taotronics/soundliberty-79
+8855--TaoTronics TT-BH041--headphones/taotronics/tt-bh041
+820--TaoTronics TT-BH060--headphones/taotronics/tt-bh060
+636--Tascam TH-02--headphones/tascam/th-02
+17586--Tranya T10--headphones/tranya/t10
+17020--Turtle Beach Stealth 600 Gen 2--headphones/turtle-beach/stealth-600-gen-2
+17001--Turtle Beach Stealth 700 Gen 2--headphones/turtle-beach/stealth-700-gen-2
+9049--Turtle Beach Elite Atlas Aero--headphones/turtle-beach/elite-atlas-aero
+243--Turtle Beach Elite 800--headphones/turtle-beach/elite-800
+563--Turtle Beach Stealth 600--headphones/turtle-beach/stealth-600
+564--Turtle Beach Stealth 700--headphones/turtle-beach/stealth-700
+633--Turtle Beach Recon 50X--headphones/turtle-beach/recon-50x
+656--Turtle Beach Stealth 300--headphones/turtle-beach/stealth-300
+702--Turtle Beach Elite Pro 2 SuperAmp--headphones/turtle-beach/elite-pro-2-superamp
+737--Turtle Beach Elite Atlas--headphones/turtle-beach/elite-atlas
+741--Turtle Beach Recon 200--headphones/turtle-beach/recon-200
+857--Turtle Beach Recon 70--headphones/turtle-beach/recon-70
+1730--Turtle Beach Battle Buds--headphones/turtle-beach/battle-buds
+377--V-MODA Crossfade M-100--headphones/v-moda/crossfade-m-100
+445--V-MODA Crossfade II Wireless--headphones/v-moda/crossfade-ii-wireless
+763--V-MODA BassFit Wireless--headphones/v-moda/bassfit-wireless
+349--Venstone X1--headphones/venstone/x1
+438--Westone W40--headphones/westone/w40
+733--XFYRO xS2--headphones/xfyro/xs2
+1693--Ylife True Wireless Earbuds--headphones/ylife/true-wireless-earbuds
+17989--iClever BTH02--headphones/iclever/bth02
+4325--iClever Boostcare--headphones/iclever/boostcare
