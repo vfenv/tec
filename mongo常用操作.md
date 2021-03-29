@@ -555,7 +555,24 @@ ps = db.runCommand({
 
  
 
- 
+##  1.33 内存不够处理方式
+
+```shell
+1、创建索引
+#不阻塞创建索引
+db.xxxxx.createIndex({"name":1,"sex":1},{"background":1})
+
+2、增加sort memory
+
+#查询当前值
+db.runCommand({ getParameter : 1, "internalQueryExecMaxBlockingSortBytes" : 1 } )
+#33504432
+
+#设置新值 2倍  或者可以设置10倍
+db.adminCommand({setParameter:1, internalQueryExecMaxBlockingSortBytes:67108864})
+```
+
+
 
  
 
