@@ -34,20 +34,86 @@ echo 3 > /proc/sys/vm/drop_caches
 
 ### 6.列出所有块信息（硬盘）
 ```shell
-lsblk：查看block device 也就是逻辑磁盘大小
-df：查看的是file system 也就是文件系统层磁盘大小
-fdisk：这个还没看
+lsblk：查看block device 也就是逻辑磁盘的大小
+
+df：查看的是file system 也就是文件系统层的磁盘大小
+
+fdisk：是一个创建和维护分区表的程序
+fdisk -l #发现待分区的磁盘 /dev/sdb
+fdisk /dev/sdb #对该磁盘进行分区，输入m并回车   然后输入n是new新建分区的意思，输入p，输入1个分区并回车，采用默认会将所有分给/dev/sdb1 
+#输入w 保存，并回车，对刚才结果进行保存
+#再次执行fdisk -l查看分区的结果，新建的分区就可以使用了。
+mkfs -t ext3 /dev/sdb1
+mount /dev/sdb1 /data
+#此时就可以使用df查看挂载情况，发现 /data上挂载了/dev/sdb1
+df -h
+#注意 fdisk最大只能分2T的空间
 ```
 
 lsblk和df不一致：
 ```shell
-如果是ext{2,3,4}文件系统的话，可以用resize2fs 命令来更新。
+#如果是ext{2,3,4}文件系统的话，可以用resize2fs 命令来更新。
 resize2fs /dev/vda2
-如果是xfs文件系统的话，用xfs_growfs更新
+
+#如果是xfs文件系统的话，用xfs_growfs更新
 xfs_growfs /dev/vda2
 ```
 
+
+
+```shell
+#查看已有硬盘设备
+ls /dev/sd*  #只有以下几块硬盘, 但是我们不重启可以让系统识别新添加的硬盘
+/dev/sda  /dev/sda1  /dev/sda2
+```
+
+
+
+```shell
+#让Linux重新扫描新接硬盘
+echo '- - -' > /sys/class/scsi_host/host0/scan 
+echo '- - -' > /sys/class/scsi_host/host1/scan 
+echo '- - -' > /sys/class/scsi_host/host2/scan
+```
+
+
+
+```shell
+ls /dev/sd*   #看！sdb识别出来了
+/dev/sda  /dev/sda1  /dev/sda2  /dev/sdb
+```
+
+
+
+```shell
+#对新扫描出来的磁盘进行分区
+fdisk /dev/sdb
+```
+
+
+
+```shell
+#修改磁盘分区表后无需重启，用partx通知内核读入新的分区 /dev/sdb   
+partx -a /dev/sdb
+#-a add
+#-d delete
+#-s show
+```
+
+
+
+```shell
+#通知系统分区表的变化，使用fdisk或者其他命令创建一个新的分区，然后使用partprobe命令重新读取分区表。
+#用于重读分区表，当出现删除文件后，仍然占用空间，可以使用partprobe不重启情况下重新读分区。
+partprobe partprobe /dev/sdb
+-d 不更新内核
+-s 显示磁盘分区汇总信息
+```
+
+
+
 ### 7.使用cat将内容追加或写入文件
+
 ```shell
 追加：cat >>a.log<<EOF … EOF  cat <<EOF>>a.log … EOF
 覆盖：cat >a.log<<EOF … EOF  cat <<EOF>a.log … EOF
@@ -278,5 +344,18 @@ find -type f | wc -l
 find -type d | wc -l
 #不计算隐藏文件夹数量
 find . -type d ! -name ".*" | wc -l
+```
+
+### 20.设置代理
+
+```shell
+#修改/etc/profile
+vi /etc/profile
+export http_proxy=http://ipaddress:8080/
+export https_proxy=http://ipaddress:8080/
+export ftp_proxy=http://ipaddress:8080/
+
+#不需要走代理的配置的 只是在host中配置的
+export no_proxy= 'a.test.com,127.0.0.1,2.2.2.2'
 ```
 
