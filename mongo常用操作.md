@@ -572,7 +572,30 @@ db.runCommand({ getParameter : 1, "internalQueryExecMaxBlockingSortBytes" : 1 } 
 db.adminCommand({setParameter:1, internalQueryExecMaxBlockingSortBytes:67108864})
 ```
 
+##  1.34使用mongodb嵌套js处理
 
+```javascript
+var list = db.getCollection('dataset_model').find({dataset_id_mysql:{$in:['a','b','c']},deleted:false},{_id:1}).limit(2000);
+var arrs = list.toArray();
+var arrnew = [];
+for(var i=0; i<arrs.length; i++){
+	arrnew.push(arrs[i]._id);
+}
+
+var aa = db.getCollection('annotation_model').find({dataset_id:{$in:arrnew},deleted:false}).limit(1000000)
+
+aa.forEach(function(e){
+    var segmentation = e.segmentation;
+    var ext_data = e.ext_data;
+    var creator = e.creator;
+    if(segmentation !=null && segmentation.length>0 && creator!='user1' && 'user2'!=creator && 'user3'!=creator){
+        if(ext_data !=null &&ext_data.points!=null && (ext_data.points.first_point.position==null||ext_data.points.first_point.position=='') && ext_data.occupied==null  &&ext_data.weather ==null){
+			print({"image_id":e.image_id});
+            //print(e);
+        }
+    }
+})
+```
 
  
 
