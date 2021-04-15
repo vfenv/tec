@@ -317,3 +317,22 @@ call cwtest('123');
 
 1. 存储过程中慎用delete语句。
 2. 存储过程适合一些有规律的数据操作，尽量不要用它在生产中跑业务。
+
+
+## 八、常用方法
+
+```sql
+--使用,连接
+SELECT GROUP_CONCAT(concat('''',id,'''')) FROM `my_table` where name LIKE '%abc%'
+
+--查询变量值
+show variables like 'group_concat_max_len';
+
+--设置全局变量和会话变量值
+SET GLOBAL group_concat_max_len = 4294967295;
+SET SESSION group_concat_max_len = 4294967295;
+
+--显示所有变量
+show variables;
+```
+
