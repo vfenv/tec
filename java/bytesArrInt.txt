@@ -1,0 +1,110 @@
+package com;
+
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+
+/**
+ * 16进制 hex 与 byte数组之间的转换
+ * 计算机中数据的一种标识方法，0-9 A-F组成，不区分大小写。
+ * 与10进制关系，0-9代表0-9 a-f 代表10-15
+ * <p>
+ * java中 1字节=8个位
+ * 每位之间只能存0和1
+ * 所以8位存储2^8 =256  其中第一位1代表负数 0代表正数。0000 0000表示0 1000 0000代表-128
+ * <p>
+ * 计算机中以补码形式存放数据
+ * <p>
+ * 正数的补码=原码=反码
+ * 负数的补码=反码+1  （反码=原码的左边第一位为1不变，其他位取反）
+ * -----------原码相加---------------
+ * 最左边是符号位，0正数 1负数
+ * 0000 0011   +3 byte中
+ * 1000 0101    -5 byte中
+ * 二数相加
+ * 0000 0011   3
+ * 1000 0101   -5
+ * 1000 1000   -8   原码相加肯定是不对的，3-5应该等于-2
+ * -----------反码相加---------------
+ * 负数的反码符号位不动，其余取反
+ * 反码相加
+ * 0000 0011   3的反码 是 原码
+ * 1111 1010   -5反码
+ * 1111 1101   相加之后得到的反码
+ * 1000 0010   转回原码 -2   使用反码计算在非0结果时看着对了，但是...
+ * -----------但是结果为0的二个反码相加---------------
+ * 5+（-5）的反码就不是这样了
+ * 0000 0101   5的反码
+ * 1111 1010   -5的反码
+ * 1111 1111   相加得到的反码结果
+ * 1000 0000   转回原码-0 貌似正确，但是整数中0000 0000也同样代表0，1000 0000是不能直接抹去的，这样用反码直接表示也就不行了
+ * -----------补码相加---------------
+ * 正数的补码就是原码
+ * 负数的补码=反码+1  *（负数和整数的表示是一样的，只是第一位是1）
+ * 0000 0101   5
+ * 1000 0101   -5的原码
+ * 1111 1010   -5反码
+ * 1111 1011   -5补码 -1*2^7+1*2^6+1*2^5+1*2^4+1*2^3+1*2^1+1*2^0=-128+64+32+16+8+2+1=-5  补码可以直接算回去
+ * 使用补码相加 5+（-5）
+ * 0000 0101   5
+ * 1111 1011   -5补码
+ * 10000 0000  超过8位，高位舍弃，0000 0000=0
+ * <p>
+ * 强制规定 1000 0000为-128 -1*2^7=-128
+ * <p>
+ * byte -128 ~ 127
+ * shirt 2字节 -2^15 ~ 2^15-1
+ * int 4字节 -2^31 ~ 2^31-1
+ * long 8字节 -2^63 ~ 2^63-1
+ */
+public class Test {
+    public static void main(String[] args) {
+        //包长度
+        int pksize = 256086141;
+        byte[] bytes = intToBytes(pksize);
+        byte sendBytes[] = new byte[512];
+        System.arraycopy(bytes,0,sendBytes,0,4);
+        //当前包号
+        int currentPackage = 156086141;
+        byte[] current_bytes = intToBytes(currentPackage);
+        System.arraycopy(current_bytes,0,sendBytes,4,4);
+
+        byte[] pks_bytes = new byte[4];
+        System.arraycopy(sendBytes,0,pks_bytes,0,4);
+        int sum = bytesToint(pks_bytes);
+        System.out.println("解析出来的总包数:" + sum);
+
+        byte[] curr_bytes = new byte[4];
+        System.arraycopy(sendBytes,4,curr_bytes,0,4);
+        int cur_no = bytesToint(curr_bytes);
+        System.out.println("当前长:" + cur_no);
+
+
+//        int sum = bytesToint(bytes);
+//        System.out.println("byte数组->int:" + sum);
+    }
+
+    public static byte[] intToBytes(int num) {
+        //byte[] array = ByteBuffer.allocate(4).putInt(pksize).array(); 这个是最大位在第一位，可以直接转
+        byte[] bytes = new byte[4];
+        byte b1 = (byte) (num & 0xff);
+        byte b2 = (byte) ((num & 0xff00) >> 8);
+        byte b3 = (byte) ((num & 0xff0000) >> 16);
+        byte b4 = (byte) ((num & 0xff000000) >> 24);
+        bytes[0] = b1;
+        bytes[1] = b2;
+        bytes[2] = b3;
+        bytes[3] = b4;
+        return bytes;
+    }
+
+    public static int bytesToint(byte[] bytes) {
+        if(bytes==null ||bytes.length>4){
+            throw new RuntimeException("byte errors");
+        }
+        int sum = 0;
+        for (int i = 0; i < bytes.length; i++) {
+            sum += (bytes[i] & 0XFF) << 8 * i;
+        }
+        return sum;
+    }
+}
