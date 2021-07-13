@@ -319,20 +319,40 @@ call cwtest('123');
 2. 存储过程适合一些有规律的数据操作，尽量不要用它在生产中跑业务。
 
 
-## 八、常用方法
+
+## 八、mysql的常用函数等
+
+### 1.mysql自定义的变量操作
 
 ```sql
---使用,连接
-SELECT GROUP_CONCAT(concat('''',id,'''')) FROM `my_table` where name LIKE '%abc%'
-
 --查询变量值
 show variables like 'group_concat_max_len';
-
 --设置全局变量和会话变量值
 SET GLOBAL group_concat_max_len = 4294967295;
 SET SESSION group_concat_max_len = 4294967295;
-
 --显示所有变量
 show variables;
+```
+
+### 2.字符串拼接
+
+```
+SELECT GROUP_CONCAT(concat('''',id,'''')) FROM `my_table` where name LIKE '%abc%'
+```
+
+
+
+### 3.自定义变量---行号
+
+```mysql
+#@rowno 定义一个临时变量 每查出一行，变量+1
+select @rowno:=@rowno+1 as rowno ,a.* FROM aabb a, (select @rowno:=0) t;
+
+SET @num = 0; 
+UPDATE sys_menu SET sort = (@num := @num + 1)
+
+create table aabb_test as select @rowno:=@rowno+1 as rowno ,a.* FROM aabb a, (select @rowno:=0) t;
+delete from aabb; 
+insert into aabb select rowno as id,a.title,a.content,a.order... from aabb_test a;
 ```
 
