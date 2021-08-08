@@ -1,0 +1,1042 @@
+oauth2.0四种模式
+答：授权码模式 简化模式 密码模式 和 客户端模式
+用户  客户端（浏览器） 服务器（分为认证服务器和资源服务器）
+client_id  client_secret code access_token refresh_token 
+简化模式：适用纯静态页面应用，没有服务器，js控制权限，这种是拿不到refresh_token
+	用户访问应用页面，重定向到认证服务器，用户授权，重新定向到应用界面（带上access_token）,调用资源服务器访问资源
+授权码模式：提前配置应用，访问的时候给一个一次性的临时凭证code，通过code换取token，换取成功code失效
+	访问应用，重定向授权页，用户授权，重定向到应用服务器（带一个code），通过code换取token，带token访问资源服务器
+	授权码模式的clientid和clientsecret存放在服务器上，通过code换取token是服务器发起的，不在客户端，https的更安全
+密码模式：name password
+	用户访问应用页面，调用认证服务器-用账号密码换取token，重定向到资源服务器进行访问
+	其中调用认证服务器的时候，要传递要对客户端身份认证
+客户端模式：信任关系再进一步，或者调用是一个后端模块，没有用户界面，鉴权服务器直接对客户端进行身份认证，通过返回token
+	客户端访问认证服务器获取token，适用token访问资源服务器获取资源。
+	
+--------------------------------
+springcloud都用到那些组件
+答:
+springcloud netflis核心组件(Eureka,hystrix,zuul,ribbon)
+Netflix Eureka 服务治理(服务注册，服务发现)
+	Eureka服务端和Eureka客户端。
+Netflix hystrix 断路器 保护系统
+	控制故障范围，防止单个服务出现问题涌入大量请求servlet线程资源耗尽服务瘫痪。
+netflix zuul 服务网关
+	api网关，路由，负载均衡  类似nginx，由网管进行权限控制，后将请求均衡发送给后台服务器。
+netflix ribbon 客户端负载均衡    feign  openfeign
+	spring cloud ribbon基于http和tcp客户端负载均衡工具，基于netflix ribbon实现，可让我们轻松的将面向服务的
+	rest模板请求自动转换成客户端负载均衡的服务调用。
+springcloud config分布式的文件配置中心
+	存储配置文件，默认使用git 可用svn，file等。提供内容（配置）的管理，静态，可通过spring cloud bus 动态配置更新
+
+sleuth 分布式服务跟踪组件
+stream 消息驱动组件
+bus	消息总线组件
+config	分布式配置中心组件
+zuul	api网管治理组件
+eureka	服务治理组件
+ribbon	客户端负载均衡组件
+hystrix	服务容错保护组件
+feign	声明式服务调用组件
+
+--------------------------------
+feign的优势在哪 怎么实现启动怎可加载怎么生成
+答:它是声明式的服务调用组件，提供客户端调用其他微服务访问的能力。
+   首先通过@enabledFeignClients注解开启，根据feign的规则，用@feignclient(value="服务名称")开启注解
+   程序启动后会扫描@feignclient注解并加入ioc容器，当接口方法被调用，通过jdk的代理生成request template
+   request template再生成request，request交给client去处理，其中client可以是httpUrlConnection，httpclient，okhttp
+   最后client被封装到loadBalanceClient类，这个类结合ribbon实现负载
+   	@Bean
+	@LoadBalanced
+	public RestTemplate restTemplate(){
+		return new RestTemplate();
+	}
+负载均衡服务端和客户端都如何实现，服务端nginx配置
+答：客户端一般用feign 或者直接使用ribbon+rest 服务器端使用nginx
+	nginx配置一个URL请求规则，监听80端口或者其他端口，server 指向一台服务器的某端口即可
+
+线程池核心实现方法，主要是executorservice 主要参数
+答：ThreadPoolExecutor参数：
+	corePoolSize ：线程的核心线程数，maximumPoolSize：线程允许的最大线程数，
+	keepAliveTime：线程没有任务执行时最多存活时间，
+	参数keepAliveTime的时间单位,workQueue：一个阻塞队列ArrayBlockingQueue，LinkedBlockingQueue，SynchronousQueue，
+	一般使用LinkedBlockingQueue和SynchronousQueue
+	threadFactory：线程工厂
+	handler：表示当拒绝处理任务时的策略；；；
+	executorservice继承自excutor
+	核心
+	execute()
+	submit()
+	shutdown()
+	shutdownNow()
+	
+	java通过Executors工厂类提供我们的线程池一共有4种：
+		1.fixedThreadPool() //启动固定线程数的线程池   用submit
+		2.CachedThreadPool() //按需分配的线程池 对比fixedThreadPool来说 	
+								CachedThreadPool就要更快一些,基本就是新开线程，submit
+		3.ScheduledThreadPoolExecutor()//定时，定期执行任务的线程池 参数只有corePoolSize 核心数,
+										无论实现几个scheduleAtFixedRate方法，他们都互不干扰。
+										ScheduledExecutorService sv=Executors.newScheduledThreadPool(3);
+										延迟5秒后每3秒执行一次
+										sv.scheduleAtFixedRate(command, 5,3,TimeUnit.SECONDS)
+										sv.scheduleAtFixedRate(command, 1,1,TimeUnit.SECONDS)
+		4.ThreadPoolExecutor()//指定线程数的线程池。
+		
+eureka怎么监听
+	答：eureka启动的时候像容器发布了5个事件，并开启心跳。客户端向服务器端发送心跳，提交状态保持通讯，这样就可以
+	eureka server 注册了5个事件
+	EurekaInstanceCanceledEvent 服务下线事件
+	EurekaInstanceRegisteredEvent 服务注册事件
+	EurekaInstanceRenewedEvent 服务续约事件
+
+	EurekaRegistryAvailableEvent Eureka注册中心启动事件
+	EurekaServerStartedEvent Eureka Server启动事件
+	通过@EventListener 参数就是事件名称监听对应事件。
+
+
+保单出单一些设计模式 应该是想考察工厂设计模式
+	工厂 单例 
+前端技术架构选型 vue h5 优劣
+html5 canvas video audio等  ///vue是h5上应用的一套js框架。h5是一套标准
+
+redis锁和java锁区别 应该是考察多节点部署，紧接问了 springcloud怎么监听多节点这个是eureka监听的
+	java synchronized（等同ReentrantLock做的lock操作）
+	redis 分布式锁可解决多服务器同时访问问题。
+
+
+hashmap和hashtable底层区别
+	HashMap是不安全的；HashTable线程安全的（使用了synchronized关键字来保证线程安全）
+	HashMap中key和value可以为空；HashTable中key和value不可以为空
+
+mq信息存储在哪 
+	缓存 本地通道
+	队列存储在内存中，当内存不够时，将非持久化的数据转存本地磁盘中
+
+数据库方向
+oracle
+1.oracle分页是如何实现的
+	rownum<= ) rn>=
+
+2. oracle索引在什么时候会失效
+	1、在索引列上使用函数。如SUBSTR,DECODE,INSTR等，对索引列进行运算.需要建立函数索引就可以解决了。 
+	2、新建的表还没来得及生成统计信息，分析一下就好了 
+	3、基于cost的成本分析，访问的表过小，使用全表扫描的消耗小于使用索引。 
+	4、使用<>、not in 、not exist，对于这三种情况大多数情况下认为结果集很大，
+		一般大于5%-15%就不走索引而走FTS（全表扫描）。 
+	5、单独的>、<。 
+	6、like "%_" 百分号在前。 
+	7、单独引用复合索引里非第一位置的索引列。也就是说查询谓词并未使用组合索引的第一列，此处有一个INDEX SKIP SCAN概念
+	8、字符型字段为数字时在where条件里不添加引号。 
+	9、当变量采用的是times变量，而表的字段采用的是date变量时.或相反情况。 
+	10、索引失效，可以考虑重建索引，rebuild online。 
+	11、B-tree索引 is null不会走,is not null会走,位图索引 is null,is not null  都会走、联合索引 
+		is not null 		只要在建立的索引列（不分先后）都会走
+	12 、在包含有null值的table列上建立索引，当时使用select count(*) from table时不会使用索引。
+	13、加上hint 还不走索引，那可能是因为你要走索引的这列是nullable，虽然这列没有空值。（将字段改为not null，就会走）
+
+3. merge是什么
+	合并语句
+	MERGE INTO TABLE A USING TABLE2 B 
+	ON(A.ID=B.AID)
+	WHEN METCHED THEN
+	UPDATE SET A.XX=B.**
+	WHEN NOT METCHED THEN
+	INSERT 	
+4.存储过程中loop是什么游标
+	循环开始标记。
+5.如何对oracle进行调优
+	尽量减少全表检索，增加索引
+6. where的执行顺序
+	oracle 从右到左，从下到上，如果有括号 先执行where下面  括号里的
+7. drop  delete  truncate 有什么区别
+	drop删表和数据，释放空间，delete和truncate是删数据，delete删表不释放空间，truncate释放空间，
+	delete是DML要提交数据，drop和truncate是dll，不用提交，不能回滚
+8.存储过程中如何动态赋值
+	使用预编译sql
+	:1,:2
+	execute immediate vsql using a，b   或者拼接
+
+mysql
+
+1. mysql如何分页
+	limit 0，10
+
+2. limit 5,10 查询的是多少条数据
+	10
+	6-15
+
+3.想在一个有重复列上建立索引 怎么办
+	可以建立联合索引
+
+4.删除数据后如何进行数据恢复
+  mysql是通过备份或者bin-log
+  oracle select * from test_zby as of timestamp sysdate - .0.1;
+
+
+mybatis
+
+1.如何批量插入数据
+	insertBatch
+	<foreach collection="list" item="item" index="index" separator=",">
+        (null,#{item.name},#{item.sex},#{item.address},#{item.telephone},#{item.tId})
+    </foreach>
+2. foreach有什么关键字
+	item：集合中元素迭代时的别名，该参数为必选。
+	index：在list和数组中,index是元素的序号，在map中，index是元素的key，该参数可选
+	open：foreach代码的开始符号，一般是(和close=")"合用。常用在in(),values()时。该参数可选
+	separator：元素之间的分隔符，例如在in()的时候，separator=","会自动在元素中间用“,“隔开，避免手动输入逗号导致sql错误，如in(1,2,)这样。该参数可选。
+	close: foreach代码的关闭符号，一般是)和open="("合用。常用在in(),values()时。该参数可选。
+	collection: 要做foreach的对象，作为入参时，List对象默认用"list"代替作为键，数组对象有"array"代替作为键，Map对象没有默认的键。当然在作为入参时可以使用@Param("keyName")来设置键，设置keyName后，list,array将会失效。 除了入参这种情况外，还有一种作为参数对象的某个字段的时候。举个例子：如果User有属性List ids。入参是User对象，那么这个collection = "ids".如果User有属性Ids ids;其中Ids是个对象，Ids有个属性List id;入参是User对象，那么collection = "ids.id"
+3.如何自增主键
+	auto increment
+4.如何使用in
+	in(a,b,c)
+
+
+
+java基础
+
+1. 说一下java中集合类
+	（1）Collection （2）Map
+2. list set map 有什么区别
+   list和set存储value 
+   list可以存多个null 也可以存重复元素
+   set只能存不同的元素 
+   
+   map存储键值对 key=value
+   
+3. ArrayList 和 LinkedArrayList 有什么区别
+	ArrayList是Array(动态数组)的数据结构，LinkedList是Link(链表)的数据结构。
+	当随机访问List（get和set操作）时，ArrayList比LinkedList的效率更高，
+	因为LinkedList是线性的数据存储方式，所以需要移动指针从前往后依次查找。
+	当对数据进行增加和删除的操作(add和remove操作)时，LinkedList比ArrayList的效率更高，
+	因为ArrayList是数组，所以在其中进行增删操作时，会对操作点之后所有数据的下标索引造成影响，需要进行数据的移动。
+	ArrayList主要控件开销在于需要在lList列表预留一定空间；而LinkList主要控件开销在于需要存储结点信息以及结点指针信息。
+
+4. HashMap和HashTable有什么区别					
+	HashMap几乎可以等价于Hashtable，除了HashMap是非synchronized的，
+	并可以接受null(HashMap可以接受为null的键值(key)和值(value)，而Hashtable则不行)。
+	HashMap是非synchronized，而Hashtable是synchronized，这意味着Hashtable是线程安全的，多个线程可以共享一个Hashtable；而如果没有正确的同步的话，多个线程是不能共享HashMap的。Java 5提供了ConcurrentHashMap，它是HashTable的替代，比HashTable的扩展性更好。
+	另一个区别是HashMap的迭代器(Iterator)是fail-fast迭代器，而Hashtable的enumerator迭代器不是fail-fast的。所以当有其它线程改变了HashMap的结构（增加或者移除元素），将会抛出ConcurrentModificationException，但迭代器本身的remove()方法移除元素则不会抛出ConcurrentModificationException异常。但这并不是一个一定发生的行为，要看JVM。这条同样也是Enumeration和Iterator的区别。
+	由于Hashtable是线程安全的也是synchronized，所以在单线程环境下它比HashMap要慢。如果你不需要同步，只需要单一线程，那么使用HashMap性能要好过Hashtable。
+	HashMap不能保证随着时间的推移Map中的元素次序是不变的。
+
+5. error和exception有什么区别
+	Error类一般是指与虚拟机相关的问题，如系统崩溃，虚拟机错误，内存空间不足，方法调用栈溢等。
+		对于这类错误的导致的应用程序中断，仅靠程序本身无法恢复和和预防，遇到这样的错误，建议让程序终止。
+	Exception类表示程序可以处理的异常，可以捕获且可能恢复。遇到这类异常，应该尽可能处理异常，
+		使程序恢复运行，而不应该随意终止异常。
+
+1、说说Java中异常的分类：
+	答：可分为Error和Exception。
+	从概念角度分析：
+	Error：是程序无法处理的系统错误，编译器不做检查；
+	Exception：是程序可以处理的异常，捕获后可能恢复；
+	从责任角度分析：
+	Error：属于JVM需要承担的责任；
+	Exception：有RuntimeException(非受检异常)是程序应该承担的责任；
+		CheckedException(受检异常)可检查异常时Java编译器应该承担的责任
+	常见的Error和Exception
+	Error：由Error结尾的异常，例如：NoClassDefFoundError、StackOverflowError、OutOfMemoyError等
+	Exception：有Exception结尾的异常，例如：NullPropagation、IndexOutOfBoundsException等
+2、dubbo一般使用什么注册中心？还有别的选择吗？
+	答：zookeeper，还可以用redis，数据库，consul，nacos
+3、怎么给List排序？
+	答：①使用Collections.sort 默认正序，可以传第二个参数自定义排序；
+	②实体类实现Comparable接口；
+	③实现Comparator接口自定义比较器；
+4、常用的Map集合有哪些？
+	答：HashMap、HashTable、TreeMap、LinkedHashMap、ConcurrentHashMap
+5、为什么说spring是一个容器？
+	答：spring的核心理念就是更方便地管理Java Bean，而被管理的Java Bean缓存在一个Map中，这个Map就可以理解为用来装Java Bean的容器，即IOC容器。
+6、说说Java虚拟机的生命周期及体系结构。
+	答:
+	生命周期：一个运行时的Java虚拟机负责运行一个Java程序。当启动一个Java程序时，一个虚拟机实例也就诞生了。
+	当程序关闭退出，这个虚拟机实例也就随之消亡。如果一台计算机同时运行多个Java程序，
+	同时也将产生多个Java虚拟机实例。每个Java程序都运行于它自己的Java虚拟机实例中。
+-----------------------------------------------	
+Java面试题之类的静态代码块和静态属性等的加载顺序
+	结论：父类静态属性、父类静态代码块、子类静态属性、子类静态代码块、代码块
+
+-----------------------------------------------
+TCP面试题之HTTP和HTTPS的请求过程
+HTTP的请求过程：
+1、TCP建立连接后，客户端会发送报文给服务端；
+2、服务端接收报文并作出响应；
+3、客户端收到响应后解析给用户；
+HTTPS的请求过程：
+1、客户端发送请求到服务端；
+2、服务器返回证书和公钥；
+3、客户端验证证书和公钥的有效性，如果有效，则生成对称密钥并使用公钥加密发送到服务端；
+4、服务端使用私钥解密报文，并使用收到的对称密钥加密报文，发送到客户端；
+5、客户端使用对称密钥解密报文；
+6、SSL加密建立
+-----------------------------------------------
+Java面试题之Oracle 支持哪三种事务隔离级别
+Oracle 支持三种事务隔离级别：
+1、读已提交；（默认）
+2、串行化；
+3、只读模式
+-----------------------------------------------
+Java面试题之hashmap中用什么hash算法解决碰撞的？
+查了一下源码（jdk8），记录一下吧，能记住就记一下吧！
+static final int hash(Object key) {
+    int h;
+    return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
+}
+-----------------------------------------------
+Java面试题之notify和notifyAll的区别
+锁池：
+　　假设线程A已经拥有对象锁，线程B、C想要获取锁就会被阻塞，进入一个地方去等待锁的等待，这个地方就是该对象的锁池；
+等待池：
+　　假设线程A调用某个对象的wait方法，线程A就会释放该对象锁，同时线程A进入该对象的等待池中，进入等待池中的线程不会去竞争该对象的锁。
+notify和notifyAll的区别：
+1、notify只会随机选取一个处于等待池中的线程进入锁池去竞争获取锁的机会；
+2、notifyAll会让所有处于等待池的线程全部进入锁池去竞争获取锁的机会；
+-----------------------------------------------
+Java面试题之Java反射的原理
+什么是Java的反射？
+　　在运行状态中，对于任意一个类，都能够知道这个类的属性和方法；
+反射的作用？
+　　如果给定一个类名，就可以通过反射机制来获取类的所有信息，也可以动态的创建对象和编译；
+反射的原理？
+　　Java语言在编译之后会生成一个class文件，反射就是通过字节码文件找到其类中的方法和属性等；
+反射的实现主要借助以下四个类：
+1、Class：类的对象；
+2、Constructor：类的构造方法
+3、Field：类中的属性对象
+4、Method：类中的方法对象
+-----------------------------------------------
+Java面试题之Java中==和equals()和hashCode()的区别
+“==”：
+　　==是运算符，用来比较两个值、两个对象的内存地址是否相等；
+“equals()”：
+　　equals是Object类的方法，默认情况下比较两个对象是否是同一个对象，内部实现是通过“==”来实现的。
+如果想比较两个对象的其他内容，则可以通过重写equals方法，
+例如：String类就重写了equals方法，改成了对象的内容是否相等。
+具体实现可以参考：https://www.cnblogs.com/hujinshui/p/10038044.html
+“hashCode()”：
+　　hashCoed也是Object类里面的方法，返回值是一个对象的哈希码，同一个对象哈希码一定相等，但不同对象哈希码也有可能相等。
+如果两个对象通过equals方法比较相等，那么他的hashCode一定相等；
+如果两个对象通过equals方法比较不相等，那么他的hashCode有可能相等；
+例如以下程序：
+class Untitled {
+    public static void main(String[] args) {
+        System.out.println("AaAa".hashCode());//2031744
+        System.out.println("BBBB".hashCode());//2031744
+    }
+}
+-----------------------------------------------
+红黑树原理：
+每个节点都只能是红色或黑色的；
+根节点是黑色的；
+每个叶节点（空节点）是黑色的；
+如果一个节点是红色的，那么他的子节点都是黑色的；
+从任意一个节点到其每个子节点的路径都有相同数目的黑色节点；
+-----------------------------------------------
+线程阻塞方式：
+　　1、join
+　　2、sleep
+　　3、yield
+　　4、改变线程的优先级
+　　5、将线程设置成守护线程（jvm中的垃圾回收线程）
+-----------------------------------------------
+
+-----------------------------------------------
+-----------------------------------------------
+-----------------------------------------------
+-----------------------------------------------
+-----------------------------------------------
+-----------------------------------------------
+-----------------------------------------------
+
+6. 接口和抽象类有什么区别
+	（1）抽象类可以有构造方法，接口中不能有构造方法。
+	（2）抽象类中可以有普通成员变量，接口中没有普通成员变量
+	（3）抽象类中可以包含静态方法，接口中不能包含静态方法
+	（4） 一个类可以实现多个接口，但只能继承一个抽象类。
+	（5）接口可以被多重实现，抽象类只能被单一继承
+	（6）如果抽象类实现接口，则可以把接口中方法映射到抽象类中作为抽象方法而不必实现，
+		而在抽象类的子类中实现接口中方法
+
+7. 子类继承父类构造方法是否能被重写 为什么
+	不能，子类在构造函数中就会首先去调用父类的构造，默认调用的是父类的无参构造。
+	如果你需要参数个数不同的构造，可以在父类中写多个构造方法的。子类继承父类的方法中不包含构造方法哦
+
+8. String, StringBuffer, Stringbuilder三者区别
+	String：字符串常量，字符串长度不可变。Java 中 String 是 immutable（不可变）的。
+	StringBuffer是线程安全，可以不需要额外的同步用于多线程中;
+	StringBuilder是非同步,运行于多线程中就需要使用着单独同步处理，但是速度就比StringBuffer快多了;
+	StringBuffer与StringBuilder两者共同之处:可以通过append、indert进行字符串的修改。
+	
+	String 类型和 StringBuffer 的主要性能区别：String 是不可变的对象, 因此在每次对 String 类型进行改变的时候，都会生成一个新的 String 对象，然后将指针指向新的 String 对象，所以经常改变内容的字符串最好不要用 String ，因为每次生成对象都会对系统性能产生影响，特别当内存中无引用对象多了以后， JVM 的 GC 就会开始工作，性能就会降低。
+	使用 StringBuffer 类时，每次都会对 StringBuffer 对象本身进行操作，而不是生成新的对象并改变对象引用。所以多数情况下推荐使用 StringBuffer ，特别是字符串对象经常改变的情况下。
+	在某些特别情况下， String 对象的字符串拼接其实是被 Java Compiler 编译成了 StringBuffer 对象的拼接，所以这些时候 String 对象的速度并不会比 StringBuffer 对象慢，例如：
+	String s1 = “This is only a” + “ simple” + “ test”;
+	生成 String s1 对象的速度并不比 StringBuffer 慢。其实在 Java Compiler 里，自动做了如下转换：
+	Java Compiler直接把上述第一条语句编译为：
+	String s1 = “This is only a simple test”;  
+	所以速度很快。但要注意的是，如果拼接的字符串来自另外的 String 对象的话，Java Compiler 就不会自动转换了，速度也就没那么快了，例如：
+	String s2 = “This is only a”;  
+	String s3 = “ simple”;  
+	String s4 = “ test”;  
+	String s1 = s2 + s3 + s4;  
+	
+	操作少量的数据，用String
+	单线程操作大量数据，用StringBuilder 
+	多线程操作大量数据，用StringBuffer。
+	相同情况下使用 StringBuilder 相比使用 StringBuffer 仅能获得 10%~15% 左右的性能提升，但却要冒多线程不安全的风险
+	
+9. jsp的是实现原理
+	一个JSP文件第一次被客户端访问时（也包括JSP文件修改后的第一次被访问），WEB服务器会把JSP文件翻译成一个Servlet，
+	客户端访问JSP文件，其实访问的就是JSP文件翻译后的Servlet，
+	JSP的底层原理其实就是Servlet。
+	
+10. jquery选择器都有什么
+	基本选择器：id选择器# 类选择器. 元素选择器 html标签
+	层次选择器：parent(),child(),prev(),next(),siblings()
+	过滤器选择器：:first :last :not :even :odd :eq :gt :lt :header :animated
+	内容过滤器选择器:contains 、:empty 、:has 、:parent
+	可见性过滤器选择器:hidden 、:visible
+	属性过滤器选择器[attribute] 、[attribute=value] 、[attribute!=value] 、
+		[attribute^=value] 、[attribute$=value] 、[attribute*=value] 、[attrSel1][attrSel2][attrSelN]
+	子元素过滤器选择器:nth-child 、:first-child 、:last-child 、:only-child
+	表单选择器:input 、:text 、:password 、:radio 、:checkbox 、:submit 、:image 、
+		:reset 、:button、:file 、:hidden
+	表单过滤器选择器:enabled 、:disabled 、:checked 、:selected
+	
+
+11. jsp中有什么循环
+	c:forEach var="i" begin="1" end="10" step="1"
+	
+12. 盒子模型都有什么
+	content，padding，border，margin
+	盒子模型有两种形式：标准盒子模型，怪异盒子模型
+	
+13.B/S 和 C/S有什么区别
+	浏览器 服务器    客户端服务器
+	bs跨平台，易于维护
+	cs响应速度块，安全性高，开发维护成本高
+------------------------------------------------------------
+14.常用的设计模式都什么
+	1.策略模式-Strategy	它定义了算法家族，分别封装起来，让它们之间可以互相替换，此模式让算法的变化，不会影响到使用算法的客户。
+	2.装饰模式-Decorator	动态的给一个对象添加有一些额外的职责，就增加功能来说，装饰模式比生成子类更为灵活。
+	3.代理模式-Proxy	为其他对象提供一种代理以控制对这个对象的访问。
+	4.工厂方法模式-Factory method	定义一个拥有创建对象的接口，让子类决定实例化哪一个类，工厂方法使一个类的实例化延迟到其子类。
+	5.原型模式-Prototype	用原型实例指定创建对象的种类，并且通过拷贝这些原型创建新的对象。
+	6.模板方式模式-Template method	定义一个操作中的算法的骨架，而将一些步骤延迟到子类中，模板方法使得子类可以不改变一个算法的结构即可重定义该算法的某些特定步骤。
+	7.外观模式-Facade	为子系统中的一组接口提供一个一致的界面，此模式定义了一个高层接口，这个接口使得这一子系统更加容易使用。
+	8.建造者模式-Builder	将一个复杂对象的构建与它的表示分离，使得同样的构建过程可以创建不同的表示。
+	9.观察者模式-Observer	定义了一种一对多的依赖关系，让多个观察者对象同时监听某一个主题对象。这个主题对象在状态发生变化时，会通知所有观察者对象，使它们能够自动更新自己。
+	10.抽象工厂模式-Abstract Factory	提供了一个创建一些列相关或相互依赖对象的接口，而无需指定它们具体的类。
+	11.状态模式-State	当一个对象的内在状态改变时允许改变其行为，这个对象看起来像是改变了其类。
+	12.适配器模式-Adapter	将一个类的接口转换成客户希望的另外一个接口，adapter模式使得原本由于接口不兼容而不能一起工作的那些类可以一起工作。
+	13.备忘录模式-Memento	在不破坏封装性的前提下，捕获一个对象的内部状态，并在该对象之外保存这个状态，这样以后就可将该对象恢复到原先保存的状态。
+	14.组合模式-Composite	将对象组合成树形结构以表示“部分--整体”的层次结构，组合模式使得用户对单个对象和组合对象的使用具有一致性。
+	15.迭代器模式-Iterator	提供一种方法顺序访问一个聚合对象中的各个元素，而又不暴露该对象的内部表示。
+	16.单例模式-Singleton	保证一个类仅有一个实例，使它们都可以独立地变化。
+	17.桥接模式-Bridge	将抽象部分与它的实现部分分离，使它们都可以独立地变化。
+	18.命令模式-Command	将一个请求封装为一个对象，从而使你可用不同的请求对客户进行参数化，对请求排队或记录请求日志，以及支持可撤销的操作。
+	19.职责链模式-Chain of Responsibility	使多个对象都有机会处理请求，从而避免请求的发送者和接受者之间的耦合关系，将这个对象连成一条链传递该请求，直到有一个对象处理它为止。
+	20.中介者模式-Mediator	用一个中介对象来封装一系列的对象交互，中介者使各个对象不需要显式地相互引用，从而使其耦合松散，而且可以独立地改变它们之间的交互。
+	21.享元模式-Flyweight	使用共享技术有效地支持大量细粒度的对象。
+	22.解释器模式-Interpreter	给定一个语言，定义它的文法的一种表示，并定义一个解释器，这个解释器使用该表示中解释语言汇中的句子。
+	23.访问者模式-Visitor	表示一个作用于某对象结构中的各元素的操作，它使你可以在不改变各元素的类的前提下定义作用于这些元素的新操作。
+------------------------------------------------------------
+15.说一下什么是工厂模式
+	简单工厂，抽象工厂
+	由工厂生产具体的产品，使用者只需要知道工厂即可。
+	
+16.说一下什么是单例模式
+	构造方法私有，提供统一获取对象唯一实例的类。
+
+17. spring建立的bean是什么模式
+	Spring创建Bean的两种模式Singleton和prototype
+
+18.说一下jvm内存模型
+	根据JVM规范，JVM 内存共分为虚拟机栈，堆，方法区，程序计数器，本地方法栈五个部分。
+
+19.说一下jvm1.7和1.8之间的区别
+	方法区是 JVM 的规范，而永久代是这种规范的一种实现
+	1.8版本用元数据区取代了1.7版本及以前的永久代。元数据区和永久代本质上都是方法区的实现。
+
+	不过元空间与永久代之间最大的区别在于：元空间并不在虚拟机中，而是使用本地内存(也就是说jvm可以使用外边的内存)。
+	因此，默认情况下，元空间的大小仅受本地内存限制，但可以通过以下参数来指定元空间的大小
+	
+20.描述一下垃圾回收机制
+	如果不进行垃圾回收，内存迟早都会被消耗空，因为我们在不断的分配内存空间而不进行回收。除非内存无限大，
+	我们可以任性的分配而不回收，但是事实并非如此。所以，垃圾回收是必须的。
+	哪些内存需要回收是垃圾回收机制第一个要考虑的问题，所谓“要回收的垃圾”无非就是那些不可能再被任何途径使用的对象。
+	那么如何找到这些对象？
+	1、引用计数法--java早期版本
+	2、
+21.是否有使用git操作命令
+	git add 
+	git init
+	git status
+	git commit -m "提交日志" 
+	git branch -v：查看所有分支
+	
+--------------------------------------------------------
+22.多线程有哪些状态，具体说明一下
+	1. New:初始状态，线程被创建，没有调用start（） 
+	2. Runnable:运行状态，Java线程把操作系统中的就绪和运行两种状态统一称为“运行中” 
+	3. Blocked:阻塞，线程进入等待状态，线程因为某种原因，放弃了CPU的使用权 
+		阻塞的几种情况： 
+		A. 等待阻塞：运行的线程执行了wait()，JVM会把当前线程放入等待队列 
+		B. 同步阻塞：运行的线程在获取对象的同步锁时，如果该同步锁被其他线程占用了，JVM会把当前线程放入锁池中 
+		C. 其他阻塞：运行的线程执行sleep(),join()或者发出IO请求时，JVM会把当前线程设置为阻塞状态，当sleep()执行完，
+			join()线程终止，IO处理完毕线程再次恢复 
+	4. Waiting:等待状态 
+	5. timed_waiting:超时等待状态，超时以后自动返回 
+	6. terminated:终止状态，当前线程执行完毕
+--------------------------------------------------------		
+
+23.有几种创建多线程的方法？说明一下
+	继承Thread 实现Runable接口
+	
+24. aio, bio, nio有什么区别
+一、同步阻塞I/O(BIO)
+二、同步非阻塞I/O(NIO)
+		IO面向流，NIO面向缓冲区
+三、异步非阻塞I/O(AIO)
+
+
+Linux
+
+1.说一下Linux常用命令
+	vi cd mkdir ls ps aux|grep tomcat
+
+2. more 和less有什么区别
+	more命令和less命令的用法是一样的，包括按键命令都差不多。more命令和less命令最大的区别是，more命令只能向下翻页，而less命令不仅可以向下翻页，还可以向前翻页；还有，more命令和less命令都有在显示的内容中查找字符串的功能，但是more命令只可以向下查找，不可以向上查找字符串，而less命令既可以向下查找，也可以向上查找。
+3.查看log如何搜索
+	grep tomcat *
+
+4.怎么定位到行
+	vi 
+	:203 跳转到203行
+	tail -n +204
+	
+
+
+Spring
+-------------------------------------------------------------------
+1. springMVC 流程说一下
+	核心控制器捕获请求、查找Handler、执行Handler、选择ViewResolver,通过ViewResolver渲染视图并返回
+	1、 用户向服务器发送请求，请求被 Spring 前端控制 Servelt DispatcherServlet 捕获(捕获)
+
+	2、 DispatcherServlet对请求  URL进行解析，得到请求资源标识符（URI）。然后根据该  URI，调用 HandlerMapping获得该Handler配置的所有相关的对象（包括  Handler对象以及   Handler对象对应的拦截器），最后以 HandlerExecutionChain对象的形式返回；(查找   handler)
+
+	3、 DispatcherServlet  根据获得的 Handler，选择一个合适的  HandlerAdapter。  提取Request 中的模型数据，填充 Handler 入参，开始执行 Handler（Controller), Handler执行完成后，向 DispatcherServlet 返回一个 ModelAndView 对象(执行  handler)
+
+	4、DispatcherServlet  根据返回的 ModelAndView，选择一个适合的 ViewResolver（必须是已经注册到 Spring 容器中的 ViewResolver) (选择  ViewResolver)
+
+	5、通过 ViewResolver 结合 Model 和 View，来渲染视图,DispatcherServlet 将渲染结果返回给客户端。（渲染返回）
+	-------------------------------------------------------------------
+2. MVC分别代表什么
+	MVC全名是Model View Controller，是模型(model)－视图(view)－控制器(controller)的缩写
+	
+3. springMVC aop是什么，可以干什么
+	AOP为Aspect Oriented Programming的缩写，意为：面向切面编程，通过预编译方式和运行期"动态代理"实现程序功能的统一维护的一种技术。AOP是OOP（面向对象编程）的延续，是软件开发中的一个热点，也是Spring框架中的一个重要内容，是函数式编程的一种衍生范型。利用AOP可以对业务逻辑的各个部分进行隔离，从而使得业务逻辑各部分之间的耦合度降低，提高程序的可重用性，同时提高了开发的效率。面向横向机制，取代了传统的纵向继承体系重复性代码
+	
+	经典应用：性能监听，事务管理，安全检查，缓存，日志等。
+	
+4. SpringMVC常用标签有什么
+	@RequestAttribute 获取HttpServletRequest对象中的属性
+	@SessionAttributes 向HttpSession中设置属性（该注解只能作用在类上） 
+		@SessionAttributes(names = {"id"}, types = {Role.class})
+	@SessionAttribute 获取Session中的值 @SessionAttribute("id") Long id
+	@RequestHeader和@CookieValue分别是获取请求头信息和Cookie信息
+	@PostMapping 
+	@RequestMapping
+	@GetMapping
+	@Controler
+	@RestController
+	
+
+5. SpringBoot启动过程说一下
+	Spring Boot程序有一个入口，就是main方法。main里面调用SpringApplication.run()启动整个Spring Boot程序，该方法所在类需要使用@SpringBootApplication注解。
+6. SpringBoot关键标签
+	@SpringBootApplication
+	@Configuration
+	@PropertySource
+	@ImportResource
+	
+7. AutoWired 和 Reasource 标签有什么区别
+	从定义上讲，@Resource默认按照名称方式进行bean匹配;
+	@Autowired默认按照类型方式进行bean匹配
+	
+	@Resource是J2EE的注解
+	@Autowired()是Spring的注解
+	
+
+8. SpringCloud config 是什么有什么用 了解底层逻辑么
+	config是分布式的配置中心。
+	包含client和server2个部分，sever提供了配置文件的存储，并且以接口形式提供出去
+	client通过接口获取数据，并依据此数据初始化自己的应用
+	
+	server可以通过远程git  svn  等方式 配置文件。
+	环境配置仓库支持的有JDBC、SVN、本地文件系统、Git等等
+	
+	
+	
+--------------------------------------------------------
+9. feign是什么？如何实现负载均衡？
+	Feign 是一个声明web服务客户端，这使得编写web服务客户端更容易
+	可使用Feign 创建一个接口并对它进行注解
+	可插拔的注解支持包括Feign注解与JAX-RS注解
+	Feign还支持可插拔的编码器与解码器，
+	Spring Cloud 增加了对 Spring MVC的注解，Spring Web 默认使用了HttpMessageConverters,
+	Spring Cloud 集成 Ribbon 和 Eureka 提供的负载均衡的HTTP客户端 Feign.
+
+	1、FeignClient底层的负载策略是基于Ribbon，最终也是通过http去调用
+	2、FeignClient采用了动态注册的方式生成动态的代理实现
+	3、从设计上比较灵活，注解加载、动态注册，又考虑了负载和非负载的情况
+--------------------------------------------------------
+10. Bus 是什么？发布和订阅有什么区别
+	spring cloud bus是其中一个微服务框架，用于实现微服务之间的通信
+	spring cloud bus整合 java的事件处理机制和消息中间件消息的发送和接受，主要由发送端、接收端和事件组成。针对不同的业务需求，可以设置不同的事件，发送端发送事件，接收端接受相应的事件，并进行相应的处理。
+	（3）消息中间件可以采用rabbitmq、kafka之类的
+	发布
+	
+	？？？？？？？？？？？发布和订阅有什么区别？？？？？？？？？？
+	
+11. 为什么SpringCloud不需要容器
+	SpringCloud底层是springboot 默认集成了tomcat 当然容器可以更换
+
+12. jekins如何配置
+	https://jenkins.io/zh/download/
+13.使用过反向代理么
+	nginx就是反向代理,用户不知道应用的真实地址,端口,只知道我们对外开放的域名的80端口.
+	当用户访问域名,域名反向代理的实际端口下的应用.直返返回给客户.nginx就是反向代理了我们实际应用
+	
+	代理 就是找一个方法代替我,比如vpn我主动连接vpn 由vpn去代理我 将我要的信息返回.
+
+redis
+
+1. redis有什么数据类型
+	Redis支持五种数据类型：string（字符串），hash（哈希），list（列表），set（集合）及zset(sorted set：有序集合)。
+	string 是 redis 最基本的类型，你可以理解成与 Memcached 一模一样的类型，一个 key 对应一个 value。
+	string 类型是二进制安全的。意思是 redis 的 string 可以包含任何数据。比如jpg图片或者序列化的对象。
+	string 类型是 Redis 最基本的数据类型，string 类型的值最大能存储 512MB。
+	
+	Redis hash 是一个键值(key=>value)对集合。
+	Redis hash 是一个 string 类型的 field 和 value 的映射表，hash 特别适合用于存储对象。
+	每个 hash 可以存储 232 -1 键值对（40多亿）。
+	
+	Redis 列表是简单的字符串列表，按照插入顺序排序。你可以添加一个元素到列表的头部（左边）或者尾部（右边）。
+	列表最多可存储 232 - 1 元素 (4294967295, 每个列表可存储40多亿)。
+	
+	Redis 的 Set 是 string 类型的无序集合。
+	集合是通过哈希表实现的，所以添加，删除，查找的复杂度都是 O(1)。
+	集合中最大的成员数为 232 - 1(4294967295, 每个集合可存储40多亿个成员)。
+	
+	Redis zset 和 set 一样也是string类型元素的集合,且不允许重复的成员。
+	不同的是每个元素都会关联一个double类型的分数。redis正是通过分数来为集合中的成员进行从小到大的排序。
+	zset的成员是唯一的,但分数(score)却可以重复。
+	
+2. redis自旋锁说一下
+	自旋锁是一种互斥锁的实现方式而已，相比一般的互斥锁会在等待期间放弃cpu，
+		自旋锁（spinlock）则是不断循环并测试锁的状态，这样就一直占着cpu。
+	
+	互斥锁：用于保护临界区，确保同一时间只有一个线程访问数据。对共享资源的访问，先对互斥量进行加锁，
+		如果互斥量已经上锁，调用线程会阻塞，直到互斥量被解锁。在完成了对共享资源的访问后，要对互斥量进行解锁。
+	
+	临界区：每个进程中访问临界资源的那段程序称为临界区，每次只允许一个进程进入临界区，进入后不允许其他进程进入。
+	
+	自旋锁：与互斥量类似，它不是通过休眠使进程阻塞，而是在获取锁之前一直处于忙等(自旋)阻塞状态。用在以下情况：
+		锁持有的时间短，而且线程并不希望在重新调度上花太多的成本。"原地打转"。
+	
+	自旋锁与互斥锁的区别：线程在申请自旋锁的时候，线程不会被挂起，而是处于忙等的状态。
+	
+	信号量：信号量是一个计数器，可以用来控制多个进程对共享资源的访问。它常作为一种锁机制，防止某进程正在访问
+		共享资源时，其他进程也访问该资源。因此，主要作为进程间以及同一进程内不同线程之间的同步手段。
+
+	
+3. redis如何做一个消息队列
+	首先，redis设计用来做缓存的，但是由于它自身的某种特性使得它可以用来做消息队列，它有几个阻塞式的API可以使用，
+	正是这些阻塞式的API让其有能力做消息队列；
+	另外，做消息队列的其他特性例如FIFO（先入先出）也很容易实现，只需要一个list对象从头取数据，从尾部塞数据即可；
+	redis能做消息队列还得益于其list对象blpop brpop接口以及Pub/Sub（发布/订阅）的某些接口，
+	它们都是阻塞版的，所以可以用来做消息队列。
+	
+4. redis如何实现高可用
+	redis高并发：主从架构，一主多从，一般来说，很多项目其实就足够了，单主用来写入数据，单机几万QPS，
+	多从用来查询数据，多个从实例可以提供每秒10万的QPS。
+		
+	
+5. 如何部署redis集群
+	Redis集群至少需要3个节点
+	要保证集群的高可用，需要每个节点都有从节点，也就是备份节点，所以Redis集群至少需要6台服务器
+	3.1在usr/local目录下新建redis-cluster目录，用于存放集群节点
+	3.2 把redis目录下的bin目录下的所有文件复制到/usr/local/redis-cluster/redis01目录下，不用担心这里没有redis01目录，
+	会自动创建的。操作命令如下（注意当前所在路径）：cp -r redis/bin/ redis-cluster/redis01
+	3.3 删除redis01目录下的快照文件dump.rdb，并且修改该目录下的redis.cnf文件，具体修改两处地方：一是端口号修改为7001，
+	二是开启集群创建模式，打开注释即可。分别如下图所示：
+	删除dump.rdb文件
+	修改端口号为7001,默认是6379
+	将cluster-enabled yes 的注释打开
+	3.4 将redis-cluster/redis01文件复制5份到redis-cluster目录下（redis02-redis06），创建6个redis实例，
+	模拟Redis集群的6个节点。然后将其余5个文件下的redis.conf里面的端口号分别修改为7002-7006。
+	3.5 接着启动所有redis节点，由于一个一个启动太麻烦了，所以在这里创建一个批量启动redis节点的脚本文件，
+	命令为start-all.sh，文件内容如下：
+	cd redis01
+	./redis-server redis.conf
+	cd ..
+	cd redis02
+	./redis-server redis.conf
+	cd ..
+	cd redis03
+	./redis-server redis.conf
+	cd ..
+	cd redis04
+	./redis-server redis.conf
+	cd ..
+	cd redis05
+	./redis-server redis.conf
+	cd ..
+	cd redis06
+	./redis-server redis.conf
+	cd ..
+	
+	要搭建集群的话，需要使用一个工具（脚本文件），这个工具在redis解压文件的源代码里。因为这个工具是一个ruby脚本文件，
+	所以这个工具的运行需要ruby的运行环境，就相当于java语言的运行需要在jvm上。所以需要安装ruby，指令如下：
+	yum install ruby
+	我这里用的是redis-3.0.0.gem，大家需要注意的是：redis的版本和ruby包的版本最好保持一致。
+	安装命令如下：gem install redis-3.0.0.gem
+	3.9 上一步中已经把ruby工具所需要的运行环境和ruby包安装好了，
+	接下来需要把这个ruby脚本工具复制到usr/local/redis-cluster
+	目录下。那么这个ruby脚本工具在哪里呢？之前提到过，在redis解压文件的源代码里，
+	即redis/src目录下的redis-trib.rb文件。
+	3.10 将该ruby工具（redis-trib.rb）复制到redis-cluster目录下，指令如下：
+	cp redis-trib.rb /usr/local/redis-cluster
+	然后使用该脚本文件搭建集群，指令如下：
+	./redis-trib.rb create --replicas 1 47.106.219.251:7001 47.106.219.251:7002 47.106.219.251:7003 47.106.219.251:7004 47.106.219.251:7005 47.106.219.251:7006
+	注意：此处大家应该根据自己的服务器ip输入对应的ip地址！中途有个地方需要手动输入yes即可
+	至此，Redi集群搭建成功！大家注意最后一段文字，显示了每个节点所分配的slots（哈希槽），这里总共6个节点，
+	其中3个是从节点，所以3个主节点分别映射了0-5460、5461-10922、10933-16383solts。
+
+	3.11 最后连接集群节点，连接任意一个即可：redis01/redis-cli -p 7001 -c 
+	注意：一定要加上-c，不然节点之间是无法自动跳转的！存储的数据（key-value）是均匀分配到不同的节点的.
+	
+	最后，加上两条redis集群基本命令：
+	1.查看当前集群信息 cluster info
+	2.查看集群里有多少个节点 cluster nodes
+	
+
+============================
+1、springboot的配置简单说一下
+	应用名称 应用端口 扫描包 主进程通过@SpringBootApplication 和 需要引入jar包的pom文件。
+2、feigen 是什么 使用过么  原理是什么
+	Feign是一个web请求的工具，可以将请求指定到具体的服务上去
+	Feign 是一个声明web服务客户端，这使得编写web服务客户端更容易
+	可使用Feign 创建一个接口并对它进行注解
+	可插拔的注解支持包括Feign注解与JAX-RS注解
+	Feign还支持可插拔的编码器与解码器，
+	Spring Cloud 增加了对 Spring MVC的注解，Spring Web 默认使用了HttpMessageConverters,
+	Spring Cloud 集成 Ribbon 和 Eureka 提供的负载均衡的HTTP客户端 Feign.
+	
+3、config如何配置的项目
+	@Value('${aaa.bbb}')
+	
+4、oracle 有什么调优说一下
+	1) 外部调整,调整 Oracle 服务器以得到高的性能
+	2) Row re-sequencing 以减少磁盘 I/O ：我们应该懂得 Oracle 调优最重要的目标是减少 I/O 。
+		重新排序带来的性能改善的程度在于在你开始的时候行的乱序性如何，以及你需要由序列中访问多少行。至于一个表中的行与索引的排序键的匹配程度，可以查看数据字典中的 dba_indexes 和 dba_tables 视图得到。
+		在 dba_indexes 的视图中，查看 clustering_factor 列。如果 clustering_factor 的值和表中的块数目大致一样，那么你的表和索引的顺序是一样的。不过，如果 clustering_factor 的值接近表中的行数目，那就表明表格中的行和索引的顺序是不一样的。
+		行重新排序的作用是不可以小看的。在需要进行大范围的索引搜索的大表中，行重新排序可以令查询的性能提高三倍。一旦你已经决定重新排序表中的行，你可以使用以下的工具之一来重新组织表格。
+		使用 Oracle 的 Create Table As Select (CTAS) 语法来拷贝表格
+	 	Oracle9i 自带的表格重新组织工具
+	3) Oracle SQL 调整:  Oracle SQL 调整是 Oracle 调整中最重要的领域之一，只要通过一些简单的 SQL 调优规则就可以大幅度地提升 SQL 语句的性能
+		1)  消除不必要的大表全表搜索.对于不必要的全表搜索来说，最常见的调优方法是增加索引。可以在表中加入标准的 B 树索引，也可以加入 bitmap 和基于函数的索引
+		2) 确保最优的索引使用 ：对于改善查询的速度，这是特别重要的。有时 Oracle 可以选择多个索引来进行查询，调优专家必须检查每个索引并且确保 Oracle 使用正确的索引。它还包括 bitmap 和基于函数的索引的使用。
+		3) 确保最优的 JOIN 操作：有些查询使用 NESTED LOOP join 快一些，有些则是 HASH join 快一些，另外一些则是 sort-merge join 更快。
+		
+	4) 调整 Oracle 排序：排序对于 Oracle 性能也是有很大影响的。
+		磁盘排序要比内存排序大概慢 14,000 倍。
+		
+	5) 调整 Oracle 的竞争：表和索引的参数设置对于 UPDATE 和 INSERT 的性能有很大的影响。
+	
+	
+5、oracle 建立过什么样的索引，说一下应用场景
+	B树索引(B-Tree index) 重复度非常低的字段,主键、唯一性约束    不适用范围：重复度非常高的字段
+	位图索引(Bitmap index)主要是重复数据导致的查询性能低的问题，用来弥补B-Tree性能低的问题,使用OR\AND这类逻辑操作
+		 不适用范围：大量DML操作、重复率较低的字段
+		 特性：1）适合在索引字段间进行OR\AND这类逻辑运算
+               2）位图索引占用的空间比BTree索引用的少的多
+			   3）位图索引不适用于大量的DML操作（除select外），因为每个DML操作对应的位图索引键值对应多条数据，
+			   修改时键值会被上锁，如果此时其他用户需要更改数据，就会造成阻塞。
+	全文索引(Text index)
+             适用范围：1）模糊查询
+                       2）数据库空间充足，因为全文索引比较占用空间
+                       3）语言文字范畴
+             不适用范围：全文索引占用大量的空间，不适合在硬盘资源紧张的库中（原数据的1.5倍）BUG比较多，维护困难
+                   特性：1）适用于不变的数据，因为DML的新数据，不会在全文索引中包含
+                         2）由于全文索引不是基于事物的，一旦有DML，就需要重新构建这个全文索引：
+							alter index t_idx rebuild parmeters('sync')
+
+
+6、使用过redis么？redis怎么做分布式事务锁
+	如果在公司里落地生产环境用分布式锁的时候，一定是会用开源类库的，比如Redis分布式锁，一般就是用 Redisson 框架就好了，非常的简便易用。
+	Rlock lock=redisson.getLock("mylock");
+	lock.lock();
+	lock.unlock();
+	此外，人家还支持redis单实例、redis哨兵、redis cluster、redis master-slave等各种部署架构，都可以给你完美实现。
+	redisson底层机制，发送一段lua 调用redis，失败死循环等待。锁住redis的进程  超过30秒自动续约。
+	
+	上述Redis分布式锁的缺点
+	其实上面那种方案最大的问题，就是如果你对某个redis master实例，写入了myLock这种锁key的value，此时会异步复制给对应的master slave实例。
+	但是这个过程中一旦发生redis master宕机，主备切换，redis slave变为了redis master。
+	接着就会导致，客户端2来尝试加锁的时候，在新的redis master上完成了加锁，而客户端1也以为自己成功加了锁。
+	此时就会导致多个客户端对一个分布式锁完成了加锁。
+	这时系统在业务语义上一定会出现问题， 导致各种脏数据的产生 。
+	所以这个就是redis cluster，或者是redis master-slave架构的 主从异步复制 导致的redis分布式锁的最大缺陷：
+		在redis master实例宕机的时候，可能导致多个客户端同时完成加锁。
+	
+7、用过信息同步么？用的是什么？
+	rabbitMQ
+8、什么是多态
+	多态是同一个行为具有多个不同表现形式或形态的能力。
+	多态就是同一个接口，使用不同的实例而执行不同操
+	优点
+	1. 消除类型之间的耦合关系
+	2. 可替换性
+	3. 可扩充性
+	4. 接口性
+	5. 灵活性
+	6. 简化性
+	继承
+	重写
+	父类引用指向子类对象
+9、用oracle写一个分页
+	rownum<= ) rn>=
+10、说一下常用的集合类
+	list set map
+11、list set 有什么区别
+	list可以重复，可以存null  set不能存重复数据 也不能存null
+12、ArrayList是有序的么？为什么？是线程安全的么？为什么
+	ArrayList是有序的，底层是数组。不是线程安全的，因为add方法并不是同步方法，可以用Vector类进行替换，
+	它的add方法中syncronized
+13、有使用过多线程么？多线程有什么实现的方式 简单说一下？
+	使用过。
+	Java多线程实现方式主要有四种：
+	1继承Thread类、
+	2实现Runnable接口、
+	3实现Callable接口通过FutureTask包装器来创建Thread线程、
+		public class SomeCallable<V> extends OtherClass implements Callable<V> {
+			@Override
+			public V call() throws Exception {
+				// TODO Auto-generated method stub
+				return null;
+			}
+		}
+		Callable<V> oneCallable = new SomeCallable<V>();   
+		//由Callable<Integer>创建一个FutureTask<Integer>对象：   
+		FutureTask<V> oneTask = new FutureTask<V>(oneCallable);   
+		//注释：FutureTask<Integer>是一个包装器，它通过接受Callable<Integer>来创建，它同时实现了Future和Runnable接口。 
+		  //由FutureTask<Integer>创建一个Thread对象：   
+		Thread oneThread = new Thread(oneTask);   
+		oneThread.start();   
+		//至此，一个线程就创建完成了。
+	4使用ExecutorService、Callable、Future实现有返回结果的多线程。
+		import java.util.concurrent.*;  
+		import java.util.Date;  
+		import java.util.List;  
+		import java.util.ArrayList;  
+		  
+		/** 
+		* 有返回值的线程 
+		*/  
+		@SuppressWarnings("unchecked")  
+		public class Test {  
+		public static void main(String[] args) throws ExecutionException,  
+			InterruptedException {  
+		   System.out.println("----程序开始运行----");  
+		   Date date1 = new Date();  
+		  
+		   int taskSize = 5;  
+		   // 创建一个线程池  
+		   ExecutorService pool = Executors.newFixedThreadPool(taskSize);  
+		   // 创建多个有返回值的任务  
+		   List<Future> list = new ArrayList<Future>();  
+		   for (int i = 0; i < taskSize; i++) {  
+			Callable c = new MyCallable(i + " ");  
+			// 执行任务并获取Future对象  
+			Future f = pool.submit(c);  
+			// System.out.println(">>>" + f.get().toString());  
+			list.add(f);  
+		   }  
+		   // 关闭线程池  
+		   pool.shutdown();  
+		  
+		   // 获取所有并发任务的运行结果  
+		   for (Future f : list) {  
+			// 从Future对象上获取任务的返回值，并输出到控制台  
+			System.out.println(">>>" + f.get().toString());  
+		   }  
+		  
+		   Date date2 = new Date();  
+		   System.out.println("----程序结束运行----，程序运行时间【"  
+			 + (date2.getTime() - date1.getTime()) + "毫秒】");  
+		}  
+		}  
+		  
+		class MyCallable implements Callable<Object> {  
+		private String taskNum;  
+		  
+		MyCallable(String taskNum) {  
+		   this.taskNum = taskNum;  
+		}  
+		  
+		public Object call() throws Exception {  
+		   System.out.println(">>>" + taskNum + "任务启动");  
+		   Date dateTmp1 = new Date();  
+		   Thread.sleep(1000);  
+		   Date dateTmp2 = new Date();  
+		   long time = dateTmp2.getTime() - dateTmp1.getTime();  
+		   System.out.println(">>>" + taskNum + "任务终止");  
+		   return taskNum + "任务返回运行结果,当前任务时间【" + time + "毫秒】";  
+		}  
+		}
+	
+14、为什么没有使用线程池
+15、说一下你们的系统
+	springcloud Eureka注册中心,zuul路由,auth2.0鉴权,ribbon基于http和tcp客户端负载均衡工具，分布式配置中心
+	histrix断路器做降低 断路。eureka client做微服务端。feign声明式的反向代理，做客户端交互访问，底层基于ribbon
+
+spring权限校验
+	shiro+jwt  https://blog.csdn.net/iamlake/article/details/86357114
+	
+----------------------------------------------------------------
+java CAS
+Java语言是靠synchronized关键字保证同步的，这会导致有锁
+锁机制存在以下问题：
+（1）在多线程竞争下，加锁、释放锁会导致比较多的上下文切换和调度延时，引起性能问题。
+（2）一个线程持有锁会导致其它所有需要此锁的线程挂起。
+（3）如果一个优先级高的线程等待一个优先级低的线程释放锁会导致优先级倒置，引起性能风险。
+volatile是不错的机制，但是volatile不能保证原子性。因此对于同步最终还是要回到锁机制上来。
+
+CAS应用
+CAS有3个操作数，内存值V，旧的预期值A，要修改的新值B。当且仅当预期值A和内存值V相同时，将内存值V修改为B，否则什么都不做。
+非阻塞算法 （nonblocking algorithms）
+
+现代的CPU提供了特殊的指令，可以自动更新共享数据，而且能够检测到其他线程的干扰，而 compareAndSet() 就用这些代替了锁定。
+compareAndSet  
+而compareAndSet利用JNI来完成CPU指令的操作。
+private volatile int value;
+在这里采用了CAS操作，每次从内存中读取数据然后将此数据和+1后的结果进行CAS操作，如果成功就返回结果，否则重试直到成功为止。
+
+而compareAndSet利用JNI来完成CPU指令的操作。
+public final boolean compareAndSet(int expect, int update) {   
+    return unsafe.compareAndSwapInt(this, valueOffset, expect, update);
+    }
+整体的过程就是这样子的，利用CPU的CAS指令，同时借助JNI来完成Java的非阻塞算法。其它原子操作都是利用类似的特性完成的。
+
+CAS通过调用JNI的代码实现的。JNI:Java Native Interface为JAVA本地调用，允许java调用其他语言。
+而compareAndSwapInt就是借助C来调用CPU底层指令实现的。
+
+Unsafe类中的compareAndSwapInt，是一个本地方法，该方法的实现位于unsafe.cpp中
+
+
+#concurrent包的实现
+由于java的CAS同时具有 volatile 读和volatile写的内存语义，因此Java线程之间的通信现在有了下面四种方式：
+
+A线程写volatile变量，随后B线程读这个volatile变量。
+A线程写volatile变量，随后B线程用CAS更新这个volatile变量。
+A线程用CAS更新一个volatile变量，随后B线程用CAS更新这个volatile变量。
+A线程用CAS更新一个volatile变量，随后B线程读这个volatile变量。
+
+如果我们仔细分析concurrent包的源代码实现，会发现一个通用化的实现模式：
+
+首先，声明共享变量为volatile；
+然后，使用CAS的原子条件更新来实现线程之间的同步；
+同时，配合以volatile的读/写和CAS所具有的volatile读和写的内存语义来实现线程之间的通信。
+
+
+-----------------------------
+BeanPostProcessor   BeanFactoryPostProcessor   BeanDefinitionRegistryPostProcessor
+
+
+spring 后置内容
+1.BeanPostProcessor后置处理器
+bean的后置处理器，该接口有两个方法分别在生命周期的初始化方法前后调用
+
+bean的后置处理器的作用主要是将创建出来的bean进行验证或者proxy，然后得到包装的bean。spring底层代码常用。
+BeanFactoryPostProcessor接口
+public class MyBeanFactoryPostProcessor  implements BeanFactoryPostProcessor{
+    @Override
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+        //获取类加载器
+        ClassLoader beanClassLoader = beanFactory.getBeanClassLoader();
+        //后期bean定义的数量
+        int beanDefinitionCount = beanFactory.getBeanDefinitionCount();
+        //获取所有bean定义的name
+        String[] beanDefinitionNames = beanFactory.getBeanDefinitionNames();
+        //获取表达式转换器。
+        BeanExpressionResolver beanExpressionResolver = beanFactory.getBeanExpressionResolver();
+        /**
+         * 我们就可以根据能获取的条件，进行自己的业务逻辑处理
+         */
+    }
+}
+public class MyBeanPostProcessor implements BeanPostProcessor {
+    /**
+     * 我们可以在bean的初始化方法前判断一下该bean是不是一个功能注解
+     * 是就打印一句话
+     * @param bean 容器先建的bean
+     * @param beanName 该bean的name
+     * @return
+     * @throws BeansException
+     */
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        if(bean instanceof FunctionalInterface)
+        {
+            System.out.println("function  bean");
+        }
+        return bean;
+    }
+
+    /**
+     * bean初始化方法后，我们可以对该bean进行增强，从而创建一个代理
+     * 然后返回代理bean
+     * @param bean
+     * @param beanName
+     * @return
+     * @throws BeansException
+     */
+    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+
+        return bean;
+    }
+}
+2. BeanFactoryPostProcessor
+在BeanFactory标准化前后(所有的bean定义已经保存加载到BeanFactory但并未创建任何bean对象 获取不到实例，
+但是可以知道bean中定义的数量以及每个bean定义的名字)
+这个后置处理器的显著的作用就是可以动态定制容器中符合自己要求的bean，或者加入自己的配置替代原先的配置。
+@FunctionalInterface
+public interface BeanFactoryPostProcessor {
+	void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException;
+}
+public class MyBeanFactoryPostProcessor  implements BeanFactoryPostProcessor{
+@Override
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+        //获取类加载器
+        ClassLoader beanClassLoader = beanFactory.getBeanClassLoader();
+        //后期bean定义的数量
+        int beanDefinitionCount = beanFactory.getBeanDefinitionCount();
+        //获取所有bean定义的name
+        String[] beanDefinitionNames = beanFactory.getBeanDefinitionNames();
+        //获取表达式转换器。
+        BeanExpressionResolver beanExpressionResolver = beanFactory.getBeanExpressionResolver();
+        /**
+         * 我们就可以根据能获取的条件，进行自己的业务逻辑处理
+         */
+    }
+}
+
+3.BeanDefinitionRegistryPostProcessor
+在BeanFactoryPostProcessor执行之前执行(在所有符合规则的bean的定义信息将要加载，但未创建bean实例，可以额外的给容器中添加一个bean) 
+可以额外的添加组件
+public interface BeanDefinitionRegistryPostProcessor extends BeanFactoryPostProcessor {
+	void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException;
+}
