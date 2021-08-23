@@ -394,6 +394,8 @@ location / {
 #### 3.location转发
 
 常用的转发规则类型有多种，代理转发，根路径映射 、别名替换、重定向：proxy_pass、root、alias、rewrite
+- root   实际访问文件路径会拼接URL中的路径
+- alias  实际访问文件路径不会拼接URL中的路径
 
 ```nginx
 #反向代理配置，用于代理请求，是否追加location取决于是否带URI
