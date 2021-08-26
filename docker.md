@@ -178,6 +178,8 @@ docker run -itd --name=mycent centos:7 /bin/bash
 
 ```shell
 docker logs container 
+
+journalctl -u docker #这个是查看整个docker的日志
 ```
 
 
