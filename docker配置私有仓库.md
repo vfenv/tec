@@ -1,3 +1,28 @@
+# docker开放2375端口
+
+```shell
+vi /lib/systemd/system/docker.service
+#ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
+ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H unix://var/run/docker.sock
+
+
+systemctl daemon-reload
+systemctl restart docker
+
+vi /etc/systemd/system/docker.service.d/tcp.conf
+
+```
+
+```
+cat > /etc/systemd/system/docker.service.d/tcp.conf <<EOF
+[Service]
+ExecStart=
+ExecStart=/usr/bin/dockerd -H unix:///var/run/docker.sock -H tcp://0.0.0.0:2375
+EOF
+```
+
+
+
 # Linux使用docker配置harbor私有仓库
 
 修改配置文件，并重启docker
