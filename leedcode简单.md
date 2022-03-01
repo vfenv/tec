@@ -1717,32 +1717,140 @@ WHERE
 #### [面试题03.02.栈的最小值](https://leetcode-cn.com/problems/min-stack-lcci/)61.5%简单
 
 ```java
+class MinStack {
+    Deque<Integer> xStack;
+    Deque<Integer> minStack;
 
+    public MinStack() {
+        xStack = new LinkedList<Integer>();
+        minStack = new LinkedList<Integer>();
+        minStack.push(Integer.MAX_VALUE);
+    }
+    
+    public void push(int x) {
+        xStack.push(x);
+        minStack.push(Math.min(minStack.peek(), x));
+    }
+    
+    public void pop() {
+        xStack.pop();
+        minStack.pop();
+    }
+    
+    public int top() {
+        return xStack.peek();
+    }
+    
+    public int getMin() {
+        return minStack.peek();
+    }
+}
 ```
 
 #### [面试题08.03.魔术索引](https://leetcode-cn.com/problems/magic-index-lcci/)67.5%简单
 
 ```java
+class Solution {
+    public int findMagicIndex(int[] nums) {
+        for(int i=0;i<nums.length;i++){
+            if(nums[i] == i){
+                return i;
+            }
+        }
+        return -1;
+    }
+}
 
+class Solution {
+    public int findMagicIndex(int[] nums) {
+        return getAnswer(nums, 0, nums.length - 1);
+    }
+
+    public int getAnswer(int[] nums, int left, int right) {
+        if (left > right) {
+            return -1;
+        }
+        int mid = (right - left) / 2 + left;
+        int leftAnswer = getAnswer(nums, left, mid - 1);
+        if (leftAnswer != -1) {
+            return leftAnswer;
+        } else if (nums[mid] == mid) {
+            return mid;
+        }
+        return getAnswer(nums, mid + 1, right);
+    }
+}
 ```
 
 #### [面试题10.01.合并排序的数组](https://leetcode-cn.com/problems/sorted-merge-lcci/)55.8%简单
 
 ```java
-
+class Solution {
+    public void merge(int[] A, int m, int[] B, int n) {
+        for (int i = 0; i != n; ++i) {
+            A[m + i] = B[i];
+        }
+        Arrays.sort(A);
+    }
+}
 ```
 
 #### [面试题16.07.最大数值](https://leetcode-cn.com/problems/maximum-lcci/)73.0%简单
 
 ```java
-
+class Solution {
+    public int maximum(int a, int b) {
+        // 先考虑没有溢出时的情况，计算 b - a 的最高位，依照题目所给提示 k = 1 时 a > b，即 b - a 为负
+        int k = b - a >>> 31;
+        // 再考虑 a b 异号的情况，此时无脑选是正号的数字
+        int aSign = a >>> 31, bSign = b >>> 31;
+        // diff = 0 时同号，diff = 1 时异号
+        int diff = aSign ^ bSign;
+        // 在异号，即 diff = 1 时，使之前算出的 k 无效，只考虑两个数字的正负关系
+        k = k & (diff ^ 1) | bSign & diff;
+        return a * k + b * (k ^ 1);
+    }
+}
 ```
 
 #### [面试题17.16.按摩师](https://leetcode-cn.com/problems/the-masseuse-lcci/)51.6%简单
 
-```java
+一个有名的按摩师会收到源源不断的预约请求，每个预约都可以选择接或不接。在每次预约服务之间要有休息时间，因此她不能接受相邻的预约。给定一个预约请求序列，替按摩师找到最优的预约集合（总预约时间最长），返回总的分钟数。
 
+```java
+class Solution {
+    public int massage(int[] nums) {
+        int first=0;
+        int second=0;
+        for(int i:nums){
+            int temp=second;
+            second=Math.max(second,first+i);
+            first=temp;
+        }
+        return second;
+    }
+}
+class Solution {
+    public int massage(int[] nums) {
+        int n = nums.length;
+        if (n == 0) {
+            return 0;
+        }
+        int dp0 = 0, dp1 = nums[0];
+
+        for (int i = 1; i < n; ++i){
+            int tdp0 = Math.max(dp0, dp1); // 计算 dp[i][0]
+            int tdp1 = dp0 + nums[i]; // 计算 dp[i][1]
+
+            dp0 = tdp0; // 用 dp[i][0] 更新 dp_0
+            dp1 = tdp1; // 用 dp[i][1] 更新 dp_1
+        }
+        return Math.max(dp0, dp1);
+    }
+}
 ```
+
+
 
 
 
