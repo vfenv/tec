@@ -1060,7 +1060,7 @@ methods:{
 
 双向数据绑定：
 
-v-model 指令在表单<input> <textarea> <select>元素上创建双向数据绑定。根据控件类型自动选取正确的方法更新元素，是个语法糖。负责监听用户输入事件以更新数据，只是个监听者。
+v-model 指令在表单\<input> \<textarea> \<select>元素上创建双向数据绑定。根据控件类型自动选取正确的方法更新元素，是个语法糖。负责监听用户输入事件以更新数据，只是个监听者。
 
 忽略所有表单元素的value、checked、selected、attribute的初始值而将VUE实例的数据作为数据来源。应该在vue的data中初始值。
 
