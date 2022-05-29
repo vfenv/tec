@@ -97,6 +97,9 @@ class TaskImpl(Task):
     #私有方法，只能在内部通过self或者cls调用
     def __pri(self):
         print("私有方法不能通过类名和实例名调用，只能self.__pri或者cls.__pri")
+    @property #把方法当属性使用，它可以和属性一起使用，隐藏属性，不能修改属性值
+    def property_method(self):
+        return 15
 
 if __name__ == '__main__':
     task = TaskImpl.build()
@@ -119,4 +122,11 @@ if __name__ == '__main__':
     int2 = partial(int,base=10) #偏函数 返回当前函数的拷贝，预制变量的值
     print(int2('150'), int('150',base=10))
     print(task.__doc__)
+    print("property method call without() --> {}".format(task.property_method))
+    #多态
+    # 魔法方法：如果在类中定义了私有变量__slots__=["name","age"]
+    # 如果定义了__slots__属性，那么不能修改list中没有的属性，不然报错，没有__slots__时可以直接添加其他属性
+    # slots不常用
+
     print()
+    #装饰器
